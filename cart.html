@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shopping Cart | Floral Boutique</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d452"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">local_florist</span>
+<h2 class="text-xl font-bold uppercase"><a href="flower.html">Floral Boutique</a></h2>
+</div>
+<button onclick="window.location.href='flower.html'" class="text-sm font-medium hover:text-primary">Continue Shopping</button>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-8">
+<div class="flex items-center gap-2 text-sm mb-10 text-gray-500">
+<a href="flower.html" class="hover:text-primary">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-black">Checkout</span>
+</div>
+<div class="flex flex-col lg:flex-row gap-16">
+<section class="lg:w-[450px] shrink-0">
+<h2 class="text-3xl font-bold mb-8">Your Selection</h2>
+<div id="cartItems" class="space-y-6 divide-y"></div>
+<div class="mt-12 p-8 bg-white rounded-2xl shadow-sm border">
+<div class="space-y-4 text-sm">
+<div class="flex justify-between">
+<span class="text-gray-500">Subtotal</span>
+<span id="subtotal">$0.00</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Delivery</span>
+<span class="text-primary">Free</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Tax</span>
+<span id="tax">$0.00</span>
+</div>
+<hr/>
+<div class="flex justify-between text-xl font-bold pt-2">
+<span>Total</span>
+<span id="total">$0.00</span>
+</div>
+</div>
+</div>
+</section>
+<section class="flex-1 max-w-2xl">
+<div class="bg-white border rounded-3xl p-10 shadow-sm">
+<h2 class="text-2xl font-bold mb-8">Delivery Information</h2>
+<form class="space-y-8">
+<div class="space-y-2">
+<label class="text-sm font-semibold uppercase text-gray-500">Recipient Name</label>
+<input class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" placeholder="Who are we surprising?" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold uppercase text-gray-500">Delivery Address</label>
+<input class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" placeholder="Street address" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-semibold uppercase text-gray-500">City</label>
+<input class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold uppercase text-gray-500">Postal Code</label>
+<input class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" type="text"/>
+</div>
+</div>
+<div class="pt-10">
+<button type="button" onclick="window.location.href='dashboard.html'" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3">
+<span>Complete Order</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</section>
+</div>
+</main>
+<script src="flower.js"></script>
+</body>
+</html>

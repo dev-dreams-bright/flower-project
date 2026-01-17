@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Floral Boutique | Artistry in Every Bloom</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d452",
+                        "background-light": "#f6f8f6",
+                        "muted-sage": "#61896f",
+                        "cream": "#f9f8f4"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light">
+<header class="flex items-center justify-between border-b px-10 py-5 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-2xl">local_florist</span>
+<h2 class="text-xl font-bold uppercase tracking-widest">Floral Boutique</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary" href="#new-arrivals">New Arrivals</a>
+<a class="text-sm font-medium hover:text-primary" href="#best-sellers">Best Sellers</a>
+<a class="text-sm font-medium hover:text-primary" href="#subscription">Subscription</a>
+<a class="text-sm font-medium hover:text-primary" href="#plants">Plants</a>
+<a class="text-sm font-medium hover:text-primary" href="#special-day">Special Day</a>
+<a class="text-sm font-medium hover:text-primary" href="#story">Story</a>
+<a class="text-sm font-medium hover:text-primary" href="dashboard.html">Dashboard</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined hover:text-primary">search</button>
+<button id="cartBtn" class="flex items-center justify-center rounded-full h-10 w-10 hover:bg-primary/10 relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span id="cartCount" class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full hidden"></span>
+</button>
+</div>
+</header>
+
+<main>
+<!-- Hero Section -->
+<div class="w-full max-w-[1440px] mx-auto px-4 md:px-10 py-6">
+<div class="relative overflow-hidden rounded-xl">
+<div class="flex min-h-[640px] flex-col gap-6 bg-cover bg-center items-center justify-center p-8 text-center" style='background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1200&q=80");'>
+<h1 class="text-white text-5xl md:text-7xl font-extralight">Artistry in Every <span class="italic font-normal">Bloom</span></h1>
+<p class="text-white/90 text-lg max-w-lg">일상을 특별하게 만드는 꽃, 나를 위한 꽃집</p>
+<button class="rounded-full h-12 px-8 bg-primary text-white font-bold hover:scale-105 transition-transform" onclick="document.getElementById('new-arrivals').scrollIntoView({behavior:'smooth'})">Shop Collection</button>
+</div>
+</div>
+</div>
+
+<!-- Features -->
+<div class="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 py-16 px-10">
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">eco</span>
+<h3 class="font-bold text-lg">Sustainably Sourced</h3>
+<p class="text-muted-sage text-sm">양재 aT 화훼센터 경매권 승인</p>
+</div>
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">local_shipping</span>
+<h3 class="font-bold text-lg">Same-Day Delivery</h3>
+<p class="text-muted-sage text-sm">당일 배송 가능</p>
+</div>
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">card_giftcard</span>
+<h3 class="font-bold text-lg">Reward Points</h3>
+<p class="text-muted-sage text-sm">구매 시 3% 적립</p>
+</div>
+</div>
+
+<!-- Event Banner -->
+<div class="w-full max-w-[1200px] mx-auto px-4 md:px-10 mb-10">
+<div class="bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl p-8 border-2 border-primary/30">
+<div class="flex items-center justify-between">
+<div>
+<span class="text-xs font-bold uppercase text-primary">Special Event</span>
+<h3 class="text-2xl font-bold mt-2">8주년 브랜드 페스티벌</h3>
+<p class="text-muted-sage mt-2">포토리뷰 작성하고 적립금 받으세요!</p>
+</div>
+<button class="px-6 py-3 bg-primary text-white font-bold rounded-full hover:scale-105 transition-transform">View Details</button>
+</div>
+</div>
+</div>
+
+<!-- New Arrivals -->
+<div id="new-arrivals" class="w-full max-w-[1200px] mx-auto px-4 md:px-10 py-10">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-xs">New Arrivals</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2">새롭게 선보이는 꽃들</h2>
+</div>
+<a class="text-muted-sage font-medium flex items-center gap-2 hover:text-primary" href="#">
+View all <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="group cursor-pointer" data-product="crystal-love">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="crystal-love" data-name="Crystal Love Frame" data-price="89.00">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">NEW</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">Crystal Love Frame</h3>
+<p class="text-muted-sage text-sm">시들지 않는 하트</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$89.00</p>
+<span class="text-gray-400 line-through text-sm">$162.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 2,670원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="blue-moment">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1594582285116-b7bbe8d1c9fe?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="blue-moment" data-name="Blue Moment Hydrangea" data-price="37.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">NEW</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">Blue Moment Hydrangea</h3>
+<p class="text-muted-sage text-sm">하늘빛 감성 수국</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$37.90</p>
+<span class="text-gray-400 line-through text-sm">$59.90</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,137원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="rose-heart">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="rose-heart" data-name="Eternal Rose Heart" data-price="25.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">NEW</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">Eternal Rose Heart</h3>
+<p class="text-muted-sage text-sm">영원히 시들지 않는 장미</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$25.90</p>
+<span class="text-gray-400 line-through text-sm">$42.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 777원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="flower-bunny">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="flower-bunny" data-name="Flower Bunny" data-price="29.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">NEW</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">Flower Bunny</h3>
+<p class="text-muted-sage text-sm">평생 간직하는 귀여움</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$29.90</p>
+<span class="text-gray-400 line-through text-sm">$45.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 897원 (3%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Best Sellers -->
+<div id="best-sellers" class="w-full max-w-[1200px] mx-auto px-4 md:px-10 py-20">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-xs">Best Sellers</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2">인기 제품</h2>
+</div>
+<a class="text-muted-sage font-medium flex items-center gap-2 hover:text-primary" href="#">
+View all <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="group cursor-pointer" data-product="bigfish-bouquet">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="bigfish-bouquet" data-name="빅피쉬 꽃다발" data-price="47.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">BEST</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">빅피쉬 꽃다발</h3>
+<p class="text-muted-sage text-sm">청춘의 낭만을 담은 감성</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$47.90</p>
+<span class="text-gray-400 line-through text-sm">$68.90</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,437원 (3%)</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 mt-1">
+<span class="material-symbols-outlined text-xs">rate_review</span>
+<span>리뷰 9개</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="royal-red-rose">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="royal-red-rose" data-name="로얄레드 장미" data-price="37.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">BEST</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">로얄레드 장미 꽃다발</h3>
+<p class="text-muted-sage text-sm">고급스러운 로얄레드</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$37.90</p>
+<span class="text-gray-400 line-through text-sm">$59.90</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,137원 (3%)</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 mt-1">
+<span class="material-symbols-outlined text-xs">rate_review</span>
+<span>리뷰 3개</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="pink-fantasy">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1487070183336-b863922373d4?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="pink-fantasy" data-name="그랜드 부다페스트" data-price="49.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">BEST</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">그랜드 부다페스트 꽃다발</h3>
+<p class="text-muted-sage text-sm">핑크빛 판타지</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$49.90</p>
+<span class="text-gray-400 line-through text-sm">$60.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,497원 (3%)</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-gray-500 mt-1">
+<span class="material-symbols-outlined text-xs">rate_review</span>
+<span>리뷰 48개</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Plants Section -->
+<div id="plants" class="w-full bg-white py-20">
+<div class="max-w-[1200px] mx-auto px-4 md:px-10">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-xs">Plants</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2">인테리어 식물</h2>
+</div>
+<a class="text-muted-sage font-medium flex items-center gap-2 hover:text-primary" href="#">
+View all <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="group cursor-pointer" data-product="money-tree">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1459156212016-c812468e2115?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="money-tree" data-name="금전수 디럭스" data-price="40.90">Add to Cart</button>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">금전수 디럭스</h3>
+<p class="text-muted-sage text-sm">재물과 행운을 부르는 식물</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$40.90</p>
+<span class="text-gray-400 line-through text-sm">$55.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,227원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="ginkgo-tree">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="ginkgo-tree" data-name="은행목 모던" data-price="39.90">Add to Cart</button>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">기쁜 소식, 은행목 모던</h3>
+<p class="text-muted-sage text-sm">싱그러운 핑크빛 잎</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$39.90</p>
+<span class="text-gray-400 line-through text-sm">$52.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,197원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="bird-paradise">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="bird-paradise" data-name="극락조 토분" data-price="39.90">Add to Cart</button>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">싱그러운 존재감, 극락조</h3>
+<p class="text-muted-sage text-sm">오피스 인테리어 추천</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$39.90</p>
+<span class="text-gray-400 line-through text-sm">$52.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,197원 (3%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Subscription Section -->
+<div id="subscription" class="w-full bg-gradient-to-br from-primary/5 to-cream py-20">
+<div class="max-w-[1200px] mx-auto px-4 md:px-10">
+<div class="text-center mb-12">
+<span class="text-primary font-bold uppercase tracking-widest text-xs">정기구독</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2 mb-4">나를 위한 꽃, 매주 받아보세요</h2>
+<p class="text-muted-sage">평범한 일상을 가치 있게 만드는 꽃 정기배송</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white rounded-2xl p-8 border-2 border-transparent hover:border-primary transition-all">
+<div class="aspect-square bg-cream rounded-xl mb-6 overflow-hidden">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://images.unsplash.com/photo-1487070183336-b863922373d4?w=400&q=80");'></div>
+</div>
+<h3 class="text-xl font-bold mb-2">Farmers S</h3>
+<p class="text-muted-sage text-sm mb-4">작은 공간을 위한 사이즈</p>
+<p class="text-2xl font-bold text-primary mb-4">$18.90 <span class="text-sm font-normal text-gray-400">/week</span></p>
+<button class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90">Subscribe Now</button>
+<p class="text-xs text-gray-500 mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+적립금 567원 (3%)
+</p>
+</div>
+<div class="bg-white rounded-2xl p-8 border-2 border-primary shadow-lg transform scale-105">
+<div class="aspect-square bg-cream rounded-xl mb-6 overflow-hidden">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&q=80");'></div>
+</div>
+<span class="inline-block bg-primary text-white px-3 py-1 rounded-full text-xs font-bold mb-3">POPULAR</span>
+<h3 class="text-xl font-bold mb-2">Farmers M</h3>
+<p class="text-muted-sage text-sm mb-4">가장 인기있는 사이즈</p>
+<p class="text-2xl font-bold text-primary mb-4">$27.90 <span class="text-sm font-normal text-gray-400">/week</span></p>
+<button class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90">Subscribe Now</button>
+<p class="text-xs text-gray-500 mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+적립금 837원 (3%)
+</p>
+</div>
+<div class="bg-white rounded-2xl p-8 border-2 border-transparent hover:border-primary transition-all">
+<div class="aspect-square bg-cream rounded-xl mb-6 overflow-hidden">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://images.unsplash.com/photo-1501226260458-b9a21e1c9fe0?w=400&q=80");'></div>
+</div>
+<h3 class="text-xl font-bold mb-2">Farmers L</h3>
+<p class="text-muted-sage text-sm mb-4">프리미엄 대형 사이즈</p>
+<p class="text-2xl font-bold text-primary mb-4">$36.90 <span class="text-sm font-normal text-gray-400">/week</span></p>
+<button class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90">Subscribe Now</button>
+<p class="text-xs text-gray-500 mt-3 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+적립금 1,107원 (3%)
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Special Day Section -->
+<div id="special-day" class="w-full max-w-[1200px] mx-auto px-4 md:px-10 py-20">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-xs">Special Day</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2">특별한 날을 위한 프리미엄</h2>
+</div>
+<a class="text-muted-sage font-medium flex items-center gap-2 hover:text-primary" href="#">
+View all <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="group cursor-pointer" data-product="white-angel">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="white-angel" data-name="화이트 엔젤" data-price="86.90">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">PREMIUM</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">순백의 청혼, 화이트 엔젤</h3>
+<p class="text-muted-sage text-sm">프로포즈 추천</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$86.90</p>
+<span class="text-gray-400 line-through text-sm">$130.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 2,607원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="tiffany-bouquet">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1594582285116-b7bbe8d1c9fe?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="tiffany-bouquet" data-name="티파니 부케" data-price="89.00">Add to Cart</button>
+</div>
+<span class="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">PREMIUM</span>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">우아한 에메랄드빛 티파니</h3>
+<p class="text-muted-sage text-sm">기적을 의미하는 푸른 장미</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$89.00</p>
+<span class="text-gray-400 line-through text-sm">$140.00</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 2,670원 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="graduation">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-xl bg-cream">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1464169633143-1f2aa6c88827?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-black px-6 py-2 rounded-full font-bold quick-add-btn" data-id="graduation" data-name="졸업 축하 꽃다발" data-price="45.00">Add to Cart</button>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="text-base font-bold">당신의 시작을 응원합니다</h3>
+<p class="text-muted-sage text-sm">졸업·축하 꽃다발</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-lg">$45.00</p>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-1">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>적립금 1,350원 (3%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Real Reviews -->
+<div class="w-full bg-cream py-20">
+<div class="max-w-[1200px] mx-auto px-4 md:px-10">
+<div class="text-center mb-12">
+<span class="text-primary font-bold uppercase tracking-widest text-xs">Real Reviews</span>
+<h2 class="text-3xl md:text-4xl font-bold mt-2">고객님들의 실시간 리뷰</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2 mb-3">
+<div class="flex text-yellow-400">
+★★★★★
+</div>
+<span class="text-xs text-gray-400">2026-01-16</span>
+</div>
+<p class="text-sm mb-3">"예뻐여예뻐여예뻐여예뻐여... 너무 만족합니다!"</p>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>g****</span>
+</div>
+<p class="text-xs text-muted-sage mt-2">비비드 체리 꽃다발</p>
+</div>
+<div class="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2 mb-3">
+<div class="flex text-yellow-400">
+★★★★★
+</div>
+<span class="text-xs text-gray-400">2026-01-15</span>
+</div>
+<p class="text-sm mb-3">"금전수도 예쁘고, 화분도 너무 이쁘고 흙 위에 깔려있는 하얀 돌은 더 이쁘고~!"</p>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>s****</span>
+</div>
+<p class="text-xs text-muted-sage mt-2">금전수 모던</p>
+</div>
+<div class="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2 mb-3">
+<div class="flex text-yellow-400">
+★★★★★
+</div>
+<span class="text-xs text-gray-400">2026-01-12</span>
+</div>
+<p class="text-sm mb-3">"핑크빛이 아주 예뻤습니다"</p>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>s****</span>
+</div>
+<p class="text-xs text-muted-sage mt-2">그랜드 부다페스트 꽃다발</p>
+</div>
+<div class="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow">
+<div class="flex items-center gap-2 mb-3">
+<div class="flex text-yellow-400">
+★★★★★
+</div>
+<span class="text-xs text-gray-400">2026-01-08</span>
+</div>
+<p class="text-sm mb-3">"사진과 같이 이쁘게 잘 만들어 주셨습니다"</p>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>4****</span>
+</div>
+<p class="text-xs text-muted-sage mt-2">응원 꽃다발</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Brand Story -->
+<div id="story" class="w-full bg-white py-24 px-4 md:px-10">
+<div class="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
+<div class="aspect-square overflow-hidden rounded-2xl shadow-2xl">
+<div class="w-full h-full bg-cover bg-center" style='background-image: url("https://images.unsplash.com/photo-1522689127545-f296c3dbc8ed?w=800&q=80");'></div>
+</div>
+<div class="flex flex-col gap-8 justify-center">
+<span class="text-primary font-bold uppercase text-xs">Since 2012</span>
+<h2 class="text-4xl md:text-5xl font-bold leading-tight">Crafted by hand,<br/>inspired by nature.</h2>
+<p class="text-lg text-muted-sage leading-relaxed">선물로만 인식되던 꽃을 일상 속에 가까이하는 문화를 만들어 갑니다. 플라워 브랜드 최초 양재 aT 화훼센터 절화·분화 경매권을 승인받아 좋은 품질의 꽃을 합리적인 가격에 제공합니다.</p>
+<p class="text-lg text-muted-sage leading-relaxed">매일 아침 직접 선별한 신선한 꽃으로, 고객님의 마음을 전달하는 아름다운 꽃다발을 제작합니다.</p>
+<button class="border-b-2 border-primary pb-1 font-bold text-lg hover:text-primary transition-colors w-fit">브랜드 스토리 더보기</button>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-16">
+<div class="max-w-[1200px] mx-auto px-4 md:px-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div>
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary text-2xl">local_florist</span>
+<h2 class="text-lg font-bold uppercase">Floral Boutique</h2>
+</div>
+<p class="text-sm text-gray-400 mb-4">나를 위한 꽃집</p>
+<div class="space-y-2 text-sm text-gray-400">
+<p>대표: 김아영</p>
+<p>사업자등록번호: 646-81-00519</p>
+<p>서울특별시 강남구 강남대로 342</p>
+</div>
+</div>
+<div>
+<h4 class="font-bold mb-6 uppercase text-sm">Shop</h4>
+<ul class="space-y-3 text-sm text-gray-400">
+<li><a class="hover:text-primary" href="#new-arrivals">New Arrivals</a></li>
+<li><a class="hover:text-primary" href="#best-sellers">Best Sellers</a></li>
+<li><a class="hover:text-primary" href="#subscription">정기구독</a></li>
+<li><a class="hover:text-primary" href="#special-day">Special Day</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6 uppercase text-sm">Support</h4>
+<ul class="space-y-3 text-sm text-gray-400">
+<li><a class="hover:text-primary" href="#">배송안내</a></li>
+<li><a class="hover:text-primary" href="#">교환/환불</a></li>
+<li><a class="hover:text-primary" href="#">이용약관</a></li>
+<li><a class="hover:text-primary" href="#">개인정보처리방침</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6 uppercase text-sm">Customer Service</h4>
+<div class="space-y-3 text-sm">
+<p class="flex items-center gap-2 text-gray-400">
+<span class="material-symbols-outlined text-sm">call</span>
+02-6229-4342
+</p>
+<p class="text-xs text-gray-500">월-금 9:00-18:00<br/>주말, 공휴일 휴무</p>
+<p class="flex items-center gap-2 text-gray-400 mt-4">
+<span class="material-symbols-outlined text-sm">mail</span>
+snowfoxflowers@snowfoxbc.com
+</p>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
+<p>© 2024 Floral Boutique Studio. All Rights Reserved.</p>
+</div>
+</div>
+</footer>
+
+<script src="flower.js"></script>
+</body>
+</html>

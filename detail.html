@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Product Detail | Floral Boutique</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a5d4e",
+                        "accent": "#d9e0d7",
+                        "cream": "#f9f8f4",
+                        "soft-black": "#1a1a1a"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+    </style>
+</head>
+<body class="bg-cream">
+<header class="sticky top-0 z-50 bg-cream/90 backdrop-blur-md border-b border-soft-black/5 px-6 md:px-20 py-4">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">local_florist</span>
+<h2 class="text-xl font-medium tracking-widest uppercase"><a href="flower.html">Floral Boutique</a></h2>
+</div>
+<div class="flex items-center gap-6">
+<button onclick="window.location.href='flower.html'" class="text-sm font-medium hover:text-primary">← Back to Shop</button>
+<button onclick="window.location.href='cart.html'" class="p-2 hover:bg-soft-black/5 rounded-full relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span id="cartCount" class="absolute top-1 right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center hidden"></span>
+</button>
+</div>
+</div>
+</header>
+<main>
+<section class="max-w-[1400px] mx-auto px-6 py-8 md:py-16 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+<!-- Left: Images -->
+<div class="flex flex-col gap-6">
+<div class="w-full aspect-[4/5] bg-white overflow-hidden rounded-xl shadow-lg">
+<div id="mainImage" class="w-full h-full bg-center bg-cover"></div>
+</div>
+<div class="grid grid-cols-4 gap-4">
+<div class="thumbnail aspect-square border-2 border-primary overflow-hidden cursor-pointer rounded-lg transition-all" data-index="0">
+<div class="w-full h-full bg-center bg-cover scale-110"></div>
+</div>
+<div class="thumbnail aspect-square border-2 border-transparent hover:border-primary/50 overflow-hidden cursor-pointer rounded-lg transition-all" data-index="1">
+<div class="w-full h-full bg-center bg-cover"></div>
+</div>
+<div class="thumbnail aspect-square border-2 border-transparent hover:border-primary/50 overflow-hidden cursor-pointer rounded-lg transition-all" data-index="2">
+<div class="w-full h-full bg-center bg-cover"></div>
+</div>
+<div class="thumbnail aspect-square border-2 border-transparent hover:border-primary/50 overflow-hidden cursor-pointer rounded-lg transition-all" data-index="3">
+<div class="w-full h-full bg-center bg-cover"></div>
+</div>
+</div>
+</div>
+<!-- Right: Product Info -->
+<div class="flex flex-col gap-10 lg:sticky lg:top-32 h-fit">
+<div class="flex flex-col gap-4">
+<nav class="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] opacity-50 mb-2">
+<a href="flower.html" class="hover:text-primary">Shop</a>
+<span>/</span>
+<span id="productCategory">Collection</span>
+</nav>
+<h1 id="productTitle" class="text-5xl md:text-6xl font-light leading-tight">The Morning Mist</h1>
+<div class="flex items-baseline gap-4">
+<p id="productPrice" class="text-2xl font-light">$85.00</p>
+<span id="productOriginalPrice" class="text-lg text-gray-400 line-through"></span>
+</div>
+<div class="flex items-center gap-1 text-sm text-primary">
+<span class="material-symbols-outlined text-base">stars</span>
+<span id="productReward">적립금 2,550원 (3%)</span>
+</div>
+</div>
+<p id="productDescription" class="text-lg leading-relaxed text-soft-black/70 font-serif italic">
+A quiet dialogue between light and shadow. Inspired by the softest break of day, featuring architectural whites and cool, silver-toned greens.
+</p>
+<div class="space-y-8 pt-8 border-t border-soft-black/10">
+<div class="flex flex-col gap-4">
+<span class="text-[11px] uppercase tracking-widest font-bold">Arrangement Size</span>
+<div class="grid grid-cols-3 gap-3">
+<button class="size-btn py-4 border-2 border-primary bg-primary text-white text-xs uppercase tracking-widest font-bold transition-all rounded-lg" data-size="standard">Standard</button>
+<button class="size-btn py-4 border-2 border-soft-black/10 hover:border-primary text-xs uppercase tracking-widest font-bold transition-all rounded-lg" data-size="deluxe">Deluxe</button>
+<button class="size-btn py-4 border-2 border-soft-black/10 hover:border-primary text-xs uppercase tracking-widest font-bold transition-all rounded-lg" data-size="premium">Premium</button>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<span class="text-[11px] uppercase tracking-widest font-bold">Quantity</span>
+<div class="flex items-center gap-4 bg-white border-2 border-soft-black/10 px-6 py-4 rounded-xl w-fit">
+<button id="decreaseQty" class="material-symbols-outlined hover:text-primary">remove</button>
+<span id="quantity" class="text-lg font-semibold w-8 text-center">1</span>
+<button id="increaseQty" class="material-symbols-outlined hover:text-primary">add</button>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<button id="addToCartBtn" class="flex-1 bg-soft-black hover:bg-primary text-white py-5 text-xs uppercase tracking-[0.3em] font-bold transition-all duration-500 rounded-xl">
+Add to Bouquet Bag
+</button>
+<button class="p-5 border-2 border-soft-black/10 hover:border-primary rounded-xl transition-all">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<div class="flex items-center justify-center gap-6 text-[10px] uppercase tracking-widest opacity-50 py-2">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">local_shipping</span> Eco-Delivery</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">redeem</span> Gift Wrapped</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">verified</span> 7-Day Fresh</span>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Product Details Section -->
+<section class="bg-white border-y border-soft-black/5">
+<div class="max-w-[1200px] mx-auto py-24 px-6 md:px-20">
+<div class="text-center mb-16">
+<span class="text-xs uppercase tracking-[0.4em] text-primary mb-4 block">Perspective</span>
+<h3 class="text-3xl md:text-4xl font-light italic font-serif">The Art of the Arrangement</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="space-y-4">
+<div class="aspect-[3/4] overflow-hidden bg-cream rounded-xl">
+<div class="w-full h-full bg-center bg-cover hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1463320898484-cdee8141c787?w=600&q=80");'></div>
+</div>
+<p class="text-[11px] uppercase tracking-widest text-center opacity-60">Top-Down Symmetry</p>
+</div>
+<div class="space-y-4 md:mt-12">
+<div class="aspect-[3/4] overflow-hidden bg-cream rounded-xl">
+<div class="w-full h-full bg-center bg-cover hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1502181541305-0d95eb5a0ff8?w=600&q=80");'></div>
+</div>
+<p class="text-[11px] uppercase tracking-widest text-center opacity-60">Macro Texture</p>
+</div>
+<div class="space-y-4">
+<div class="aspect-[3/4] overflow-hidden bg-cream rounded-xl">
+<div class="w-full h-full bg-center bg-cover hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1495231916356-a86217efff12?w=600&q=80");'></div>
+</div>
+<p class="text-[11px] uppercase tracking-widest text-center opacity-60">Lifestyle Placement</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- What's Inside -->
+<section class="bg-accent/20">
+<div class="max-w-[1200px] mx-auto py-24 px-6 md:px-20 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+<div class="order-2 lg:order-1">
+<div class="max-w-md">
+<span class="text-xs uppercase tracking-[0.4em] text-primary mb-6 block">The Recipe</span>
+<h3 class="text-4xl font-light mb-8 font-serif">What Blooms Inside</h3>
+<ul class="space-y-6">
+<li class="flex justify-between items-end border-b border-soft-black/10 pb-2">
+<span class="text-lg font-serif">Avalanche Roses</span>
+<span class="text-xs uppercase tracking-widest opacity-50">Large Headed, Ivory</span>
+</li>
+<li class="flex justify-between items-end border-b border-soft-black/10 pb-2">
+<span class="text-lg font-serif">Silver Dollar Eucalyptus</span>
+<span class="text-xs uppercase tracking-widest opacity-50">Muted Blue-Green</span>
+</li>
+<li class="flex justify-between items-end border-b border-soft-black/10 pb-2">
+<span class="text-lg font-serif">White Ranunculus</span>
+<span class="text-xs uppercase tracking-widest opacity-50">Paper-Thin Petals</span>
+</li>
+<li class="flex justify-between items-end border-b border-soft-black/10 pb-2">
+<span class="text-lg font-serif">Astrantia Major</span>
+<span class="text-xs uppercase tracking-widest opacity-50">Wild Star-Like Detail</span>
+</li>
+</ul>
+<p class="mt-10 text-sm italic opacity-60">Note: As nature is ever-changing, some stems may be substituted for similar or higher-value blooms.</p>
+</div>
+</div>
+<div class="order-1 lg:order-2 aspect-square bg-white shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 overflow-hidden rounded-2xl">
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://images.unsplash.com/photo-1487070183336-b863922373d4?w=800&q=80");'></div>
+</div>
+</div>
+</section>
+
+<!-- Premium Experience -->
+<section class="bg-soft-black text-white">
+<div class="max-w-[1200px] mx-auto py-24 px-6 md:px-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="aspect-[4/5] lg:h-[600px] overflow-hidden rounded-2xl">
+<div class="w-full h-full bg-center bg-cover opacity-80" style='background-image: url("https://images.unsplash.com/photo-1512363321984-e0e8e3e0c8b1?w=800&q=80");'></div>
+</div>
+<div class="space-y-8">
+<span class="text-xs uppercase tracking-[0.4em] text-accent">The Unboxing</span>
+<h3 class="text-4xl md:text-5xl font-light font-serif">A Premium Experience</h3>
+<p class="text-lg opacity-70 leading-relaxed font-serif italic">
+Every arrangement is secured in our signature forest-green box, wrapped in pH-neutral tissue, and accompanied by a hand-lettered card on textured recycled paper.
+</p>
+<div class="grid grid-cols-2 gap-8 pt-8">
+<div class="space-y-2">
+<span class="material-symbols-outlined text-accent">recycling</span>
+<h4 class="text-xs uppercase font-bold tracking-widest">Sustainable</h4>
+<p class="text-xs opacity-50">100% compostable hydration packs.</p>
+</div>
+<div class="space-y-2">
+<span class="material-symbols-outlined text-accent">verified</span>
+<h4 class="text-xs uppercase font-bold tracking-widest">Guaranteed</h4>
+<p class="text-xs opacity-50">Freshness for 7 days post-arrival.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Related Products -->
+<section class="max-w-[1200px] mx-auto py-24 px-6 md:px-20">
+<div class="flex justify-between items-end mb-12">
+<h3 class="text-3xl font-light font-serif">You May Also Adore</h3>
+<a class="text-[11px] uppercase tracking-widest font-bold border-b border-soft-black/20 pb-1 hover:border-primary" href="flower.html">View All</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="group cursor-pointer" onclick="window.location.href='detail.html?id=golden-hour'">
+<div class="aspect-[4/5] bg-white overflow-hidden mb-4 relative rounded-xl">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1487070183336-b863922373d4?w=400&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<h4 class="text-sm font-medium tracking-wide">Golden Hour Bloom</h4>
+<p class="text-xs opacity-50">$72.00</p>
+</div>
+<div class="group cursor-pointer" onclick="window.location.href='detail.html?id=midnight-velvet'">
+<div class="aspect-[4/5] bg-white overflow-hidden mb-4 relative rounded-xl">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1501226260458-b9a21e1c9fe0?w=400&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<h4 class="text-sm font-medium tracking-wide">Midnight Velvet</h4>
+<p class="text-xs opacity-50">$95.00</p>
+</div>
+<div class="group cursor-pointer" onclick="window.location.href='detail.html?id=petal-soft'">
+<div class="aspect-[4/5] bg-white overflow-hidden mb-4 relative rounded-xl">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<h4 class="text-sm font-medium tracking-wide">Petal Softness</h4>
+<p class="text-xs opacity-50">$120.00</p>
+</div>
+<div class="group cursor-pointer" onclick="window.location.href='detail.html?id=wild-meadow'">
+<div class="aspect-[4/5] bg-white overflow-hidden mb-4 relative rounded-xl">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-105 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1594582285116-b7bbe8d1c9fe?w=400&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<h4 class="text-sm font-medium tracking-wide">Wild Meadow</h4>
+<p class="text-xs opacity-50">$65.00</p>
+</div>
+</div>
+</section>
+</main>
+<script src="flower.js"></script>
+</body>
+</html>
