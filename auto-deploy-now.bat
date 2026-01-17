@@ -7,24 +7,38 @@ echo.
 
 cd /d "%~dp0"
 
-echo [1/4] 변경사항 추가...
+echo [1/6] GitHub에서 최신 변경사항 가져오기...
+git pull origin main
+echo.
+
+echo [2/6] 변경사항 추가...
 git add .
 echo.
 
-echo [2/4] 커밋 생성...
+echo [3/6] 커밋 생성...
 git commit -m "Update: 프론트엔드 UI 개선"
+if errorlevel 1 (
+    echo 커밋할 변경사항이 없습니다.
+)
 echo.
 
-echo [3/4] GitHub에 업로드...
+echo [4/6] GitHub에 업로드...
 git push origin main
 echo.
 
-echo [4/4] 완료!
+echo [5/6] 배포 상태 확인...
+echo GitHub Actions가 자동으로 배포를 시작합니다.
+echo.
+
+echo [6/6] 완료!
 echo.
 echo ================================================
 echo 배포 완료!
-echo GitHub Actions 확인:
+echo.
+echo 배포 진행 상황 확인:
 echo https://github.com/dev-dreams-bright/flower-project/actions
+echo.
+echo Azure 사이트는 2-3분 후 업데이트됩니다!
 echo ================================================
 echo.
 pause
