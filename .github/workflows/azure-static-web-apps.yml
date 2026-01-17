@@ -32,6 +32,7 @@ jobs:
           output_location: "/" # 빌드 출력 위치
           ###### 빌드 명령어 비활성화 (순수 HTML 프로젝트) ######
           skip_app_build: true
+          app_build_command: ""
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
