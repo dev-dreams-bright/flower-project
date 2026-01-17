@@ -1,0 +1,18 @@
+{
+  "navigationFallback": {
+    "rewrite": "/flower.html",
+    "exclude": ["/images/*.{png,jpg,gif,webp}", "/css/*"]
+  },
+  "routes": [
+    {
+      "route": "/",
+      "serve": "/flower.html"
+    }
+  ],
+  "mimeTypes": {
+    ".html": "text/html",
+    ".css": "text/css",
+    ".js": "text/javascript",
+    ".json": "application/json"
+  }
+}

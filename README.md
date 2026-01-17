@@ -1,25 +1,25 @@
-# Floral Boutique - 꽃집 웹사이트
+# 꽃보라가든 - 일상을 꽃으로 물들이다
 
 ## 📖 프로젝트 소개
 
-나를 위한 꽃집, Floral Boutique의 온라인 쇼핑몰입니다.
-Snowfox Flowers의 디자인을 참고하여 세련되고 감성적인 UI/UX를 구현했습니다.
+나를 위한 꽃집, 꽃보라가든의 온라인 쇼핑몰입니다.
+신선한 꽃과 세련된 디자인으로 고객님의 특별한 순간을 더욱 아름답게 만듭니다.
 
 ## 🎨 주요 기능
 
 ### 메인 페이지 (flower.html)
 - 히어로 섹션
-- New Arrivals (신상품)
-- Best Sellers (베스트셀러)
-- Plants (식물)
-- Special Day (특별한 날)
-- Subscription (정기구독)
-- Real Reviews (실시간 리뷰)
-- Brand Story (브랜드 스토리)
+- 신상품
+- 베스트셀러
+- 식물
+- 특별한 날
+- 정기구독
+- 실시간 리뷰
+- 브랜드 스토리
 
 ### 상세 페이지 (detail.html)
 - 이미지 갤러리 (4장 썸네일)
-- 사이즈 선택 (Standard/Deluxe/Premium)
+- 사이즈 선택 (스탠다드/디럭스/프리미엄)
 - 수량 조절
 - 적립금 표시
 - 장바구니 담기
@@ -30,12 +30,12 @@ Snowfox Flowers의 디자인을 참고하여 세련되고 감성적인 UI/UX를 
 - 수량 조절 및 삭제
 - 가격 자동 계산
 - 배송 정보 입력
-- 결제 진행
+- 주문하기
 
-### 대시보드 (dashboard.html)
+### 마이페이지 (dashboard.html)
 - 주문 추적 (배송 진행률)
 - 주문 내역
-- 정기구독 관리
+- 적립금 확인
 - 회원 정보
 
 ## 🛠 기술 스택
@@ -44,7 +44,7 @@ Snowfox Flowers의 디자인을 참고하여 세련되고 감성적인 UI/UX를 
 - **CSS3**: Tailwind CSS CDN
 - **JavaScript**: Vanilla JS (ES6+)
 - **LocalStorage**: 장바구니 데이터 저장
-- **Google Fonts**: Manrope, Noto Serif
+- **Google Fonts**: Noto Sans KR, Noto Serif KR
 - **Material Symbols**: 아이콘
 
 ## 📁 파일 구조
@@ -54,7 +54,7 @@ Snowfox Flowers의 디자인을 참고하여 세련되고 감성적인 UI/UX를 
 ├── flower.html          # 메인 페이지
 ├── detail.html          # 상품 상세 페이지
 ├── cart.html            # 장바구니/결제 페이지
-├── dashboard.html       # 대시보드/마이페이지
+├── dashboard.html       # 마이페이지
 ├── flower.js            # JavaScript 기능
 ├── flower.css           # 추가 스타일
 ├── project.py           # Python 구구단 프로그램
@@ -64,7 +64,8 @@ Snowfox Flowers의 디자인을 참고하여 세련되고 감성적인 UI/UX를 
 Git 자동화 스크립트:
 ├── git-auto-push.bat    # 자동 Push
 ├── git-auto-pull.bat    # 자동 Pull
-└── git-sync.bat         # 자동 동기화 (Pull + Push)
+├── git-sync.bat         # 자동 동기화 (Pull + Push)
+└── git-setup-complete.bat  # 초기 설정
 ```
 
 ## 🚀 사용 방법
@@ -76,12 +77,6 @@ start flower.html
 ```
 
 ### 2. Git 자동화 사용
-
-#### 첫 실행 (저장소 초기화)
-```bash
-# git-auto-push.bat 더블클릭
-# 원격 저장소 URL 입력 (예: https://github.com/username/repo.git)
-```
 
 #### 변경사항 업로드 (Push)
 ```bash
@@ -95,7 +90,7 @@ start flower.html
 # 원격 저장소의 최신 변경사항을 가져옵니다
 ```
 
-#### 자동 동기화 (Pull + Push)
+#### 자동 동기화 (Pull + Push) - 추천!
 ```bash
 # git-sync.bat 더블클릭
 # Pull → 변경사항 확인 → Commit → Push를 한번에 실행
@@ -116,7 +111,9 @@ start flower.html
 - [x] 배송 추적
 - [x] 관심상품 (하트)
 - [x] 할인가 표시
-- [x] 배지 (NEW, BEST, PREMIUM)
+- [x] 배지 (신상품, BEST, 프리미엄)
+- [x] 한글 UI
+- [x] 브랜드 컬러 적용
 
 ### 📝 향후 추가 가능 기능
 - [ ] 회원가입/로그인
@@ -130,15 +127,17 @@ start flower.html
 
 ## 🎨 디자인 컨셉
 
+- **브랜드 이름**: 꽃보라가든
 - **컬러 팔레트**:
-  - Primary: #11d452 (그린)
-  - Background: #f6f8f6 (연한 그린)
-  - Accent: #61896f (세이지)
-  - Cream: #f9f8f4 (크림)
+  - Primary: #2d5f3f (짙은 초록색)
+  - Primary Light: #4a7c5e (연한 초록색)
+  - Background: #f8faf9 (연한 배경)
+  - Muted Sage: #5a735f (차분한 그린)
+  - Cream: #fdfdfb (크림색)
 
 - **타이포그래피**:
-  - Display: Manrope (산세리프)
-  - Serif: Noto Serif (제목용)
+  - Display: Noto Sans KR (본문)
+  - Serif: Noto Serif KR (제목용)
   - Material Symbols (아이콘)
 
 ## 📸 이미지 출처
@@ -151,6 +150,17 @@ start flower.html
 - Snowfox Flowers: https://snowfoxflowers.com/
 - 디자인 영감 및 기능 참고
 
+## 🌸 브랜드 컨셉
+
+**꽃보라가든**은 일상을 꽃으로 물들이는 온라인 꽃집입니다.
+선물로만 인식되던 꽃을 일상 속에 가까이하는 문화를 만들어갑니다.
+
+### 핵심 가치
+- 🌿 신선함: 매일 아침 직접 선별한 신선한 꽃
+- 🎨 디자인: 세련되고 감성적인 꽃 디자인
+- 💚 친환경: 재활용 가능한 포장재 사용
+- ⭐ 만족: 7일 신선도 보장
+
 ## 📝 라이센스
 
 MIT License
@@ -161,8 +171,24 @@ MIT License
 
 ## 📞 문의
 
-이메일: your-email@example.com
+- 전화: 02-6229-4342
+- 이메일: info@flowerrain.co.kr
+- 운영시간: 평일 9:00-18:00 (주말, 공휴일 휴무)
 
 ---
 
 **마지막 업데이트**: 2026-01-17
+
+## 🎉 업데이트 내역
+
+### v2.0 (2026-01-17)
+- ✅ 브랜드명 "꽃보라가든"으로 변경
+- ✅ 모든 UI 한글화
+- ✅ 브랜드 컬러 짙은 초록색으로 변경
+- ✅ 모든 이미지 추가 및 최적화
+- ✅ 폰트 Noto Sans KR로 변경
+- ✅ 가격 표시 한글 원화로 변경
+
+### v1.0 (2026-01-16)
+- ✅ 초기 웹사이트 구축
+- ✅ Git 자동화 스크립트 생성
