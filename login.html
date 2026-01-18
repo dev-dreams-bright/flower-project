@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>로그인 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2d5f3f"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<!-- 헤더 -->
+<header class="bg-white border-b">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="text-2xl">🌸</span>
+<h2 class="text-2xl font-bold text-primary"><a href="flower.html">꽃보라가든</a></h2>
+</div>
+<a href="flower.html" class="text-sm text-gray-600 hover:text-primary">← 메인으로</a>
+</div>
+</header>
+
+<main class="min-h-screen flex items-center justify-center py-12 px-4">
+<div class="max-w-md w-full">
+<!-- 탭 -->
+<div class="bg-white rounded-t-2xl shadow-lg border-t border-x overflow-hidden">
+<div class="flex">
+<button id="loginTab" onclick="showLogin()" class="flex-1 py-4 font-bold text-primary bg-primary/5 border-b-2 border-primary transition-all">
+로그인
+</button>
+<button id="signupTab" onclick="showSignup()" class="flex-1 py-4 font-bold text-gray-400 hover:text-gray-600 border-b border-gray-200 transition-all">
+회원가입
+</button>
+</div>
+</div>
+
+<!-- 로그인 폼 -->
+<div id="loginForm" class="bg-white rounded-b-2xl shadow-lg border-b border-x p-8">
+<h2 class="text-2xl font-bold mb-6 text-center">꽃보라가든에 오신 것을 환영합니다 🌸</h2>
+
+<form onsubmit="handleLogin(event)" class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">이메일</label>
+<input 
+    type="email" 
+    id="loginEmail" 
+    required 
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="your@email.com"
+/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">비밀번호</label>
+<input 
+    type="password" 
+    id="loginPassword" 
+    required 
+    minlength="6"
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="6자 이상"
+/>
+</div>
+
+<button 
+    type="submit" 
+    class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl mt-6"
+>
+로그인하기
+</button>
+</form>
+
+<div id="loginMessage" class="mt-4 p-3 rounded-lg hidden"></div>
+</div>
+
+<!-- 회원가입 폼 -->
+<div id="signupForm" class="bg-white rounded-b-2xl shadow-lg border-b border-x p-8 hidden">
+<h2 class="text-2xl font-bold mb-6 text-center">새로운 시작 🌱</h2>
+
+<form onsubmit="handleSignup(event)" class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">이름</label>
+<input 
+    type="text" 
+    id="signupName" 
+    required 
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="홍길동"
+/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">이메일</label>
+<input 
+    type="email" 
+    id="signupEmail" 
+    required 
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="your@email.com"
+/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">전화번호</label>
+<input 
+    type="tel" 
+    id="signupPhone" 
+    required 
+    pattern="[0-9]{10,11}"
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="01012345678"
+/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">비밀번호</label>
+<input 
+    type="password" 
+    id="signupPassword" 
+    required 
+    minlength="6"
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="6자 이상"
+/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold text-gray-700 mb-2">비밀번호 확인</label>
+<input 
+    type="password" 
+    id="signupPasswordConfirm" 
+    required 
+    minlength="6"
+    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary"
+    placeholder="비밀번호 재입력"
+/>
+</div>
+
+<button 
+    type="submit" 
+    class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl mt-6"
+>
+회원가입하기
+</button>
+</form>
+
+<div id="signupMessage" class="mt-4 p-3 rounded-lg hidden"></div>
+</div>
+
+<!-- 테스트 계정 안내 -->
+<div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+<p class="text-sm text-blue-800 text-center">
+<span class="font-bold">💡 테스트:</span> 아무 이메일로 회원가입 후 확인 이메일 받으세요!
+</p>
+</div>
+</div>
+</main>
+
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+// 탭 전환
+function showLogin() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('signupForm').classList.add('hidden');
+    document.getElementById('loginTab').classList.add('text-primary', 'bg-primary/5', 'border-b-2', 'border-primary');
+    document.getElementById('loginTab').classList.remove('text-gray-400', 'border-gray-200');
+    document.getElementById('signupTab').classList.remove('text-primary', 'bg-primary/5', 'border-b-2', 'border-primary');
+    document.getElementById('signupTab').classList.add('text-gray-400', 'border-gray-200');
+}
+
+function showSignup() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('signupForm').classList.remove('hidden');
+    document.getElementById('signupTab').classList.add('text-primary', 'bg-primary/5', 'border-b-2', 'border-primary');
+    document.getElementById('signupTab').classList.remove('text-gray-400', 'border-gray-200');
+    document.getElementById('loginTab').classList.remove('text-primary', 'bg-primary/5', 'border-b-2', 'border-primary');
+    document.getElementById('loginTab').classList.add('text-gray-400', 'border-gray-200');
+}
+
+// 메시지 표시
+function showMessage(elementId, message, isError = false) {
+    const messageEl = document.getElementById(elementId);
+    messageEl.textContent = message;
+    messageEl.className = `mt-4 p-3 rounded-lg ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`;
+    messageEl.classList.remove('hidden');
+}
+
+// 로그인
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (error) throw error;
+        
+        showMessage('loginMessage', '✅ 로그인 성공! 메인 페이지로 이동합니다...', false);
+        
+        // 사용자 이름 저장
+        localStorage.setItem('userName', data.user.user_metadata.name || '고객');
+        
+        setTimeout(() => {
+            window.location.href = 'flower.html';
+        }, 1500);
+        
+    } catch (error) {
+        console.error('로그인 에러:', error);
+        showMessage('loginMessage', `❌ ${error.message}`, true);
+    }
+}
+
+// 회원가입
+async function handleSignup(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const phone = document.getElementById('signupPhone').value;
+    const password = document.getElementById('signupPassword').value;
+    const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+    
+    // 비밀번호 확인
+    if (password !== passwordConfirm) {
+        showMessage('signupMessage', '❌ 비밀번호가 일치하지 않습니다.', true);
+        return;
+    }
+    
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: {
+                    name: name,
+                    phone: phone
+                }
+            }
+        });
+        
+        if (error) throw error;
+        
+        showMessage('signupMessage', '✅ 회원가입 성공! 이메일을 확인해주세요. (확인 후 로그인 가능)', false);
+        
+        // 3초 후 로그인 탭으로 전환
+        setTimeout(() => {
+            showLogin();
+        }, 3000);
+        
+    } catch (error) {
+        console.error('회원가입 에러:', error);
+        showMessage('signupMessage', `❌ ${error.message}`, true);
+    }
+}
+
+// 로그인 상태 확인
+supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+        console.log('✅ 로그인됨:', session.user.email);
+    }
+});
+</script>
+</body>
+</html>

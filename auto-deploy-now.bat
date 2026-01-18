@@ -16,7 +16,7 @@ git add .
 echo.
 
 echo [3/6] 커밋 생성...
-git commit -m "Major Update: UI 완전 개선 + Supabase 백엔드 가이드"
+git commit -m "Complete: Supabase 백엔드 연동 + 로그인 시스템 구현"
 if errorlevel 1 (
     echo 커밋할 변경사항이 없습니다.
 )
