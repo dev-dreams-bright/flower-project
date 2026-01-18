@@ -1,6 +1,11 @@
+// ============================================
+// 꽃보라가든 - 백엔드 통합 버전
+// ============================================
+
 // 장바구니 기능
 let cart = JSON.parse(localStorage.getItem('floralCart')) || [];
 let quantity = 1;
+let currentUser = null;
 
 const products = {
     'spring-peony': {
@@ -125,6 +130,56 @@ const products = {
     }
 };
 
+// ============================================
+// 인증 시스템
+// ============================================
+
+// 현재 사용자 확인
+async function checkAuth() {
+    if (typeof supabase === 'undefined') {
+        console.log('⏳ Supabase 로딩 중...');
+        return null;
+    }
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    currentUser = user;
+    
+    if (user) {
+        console.log('✅ 로그인됨:', user.email);
+        updateUIForLoggedInUser(user);
+    } else {
+        console.log('❌ 비로그인 상태');
+    }
+    
+    return user;
+}
+
+// 로그인 상태에 따라 UI 업데이트
+function updateUIForLoggedInUser(user) {
+    // 로그인 버튼을 사용자 이름으로 변경
+    const loginButtons = document.querySelectorAll('a[href="login.html"]');
+    loginButtons.forEach(btn => {
+        const userName = user.user_metadata?.name || user.email.split('@')[0];
+        btn.textContent = `👤 ${userName}`;
+        btn.href = 'dashboard.html';
+    });
+}
+
+// 로그아웃
+async function logout() {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+        showNotification('로그아웃 되었습니다');
+        setTimeout(() => {
+            window.location.href = 'flower.html';
+        }, 1000);
+    }
+}
+
+// ============================================
+// 장바구니 기능
+// ============================================
+
 function updateCartCount() {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     const countElements = document.querySelectorAll('#cartCount');
@@ -168,8 +223,217 @@ function showNotification(message) {
     setTimeout(() => notif.remove(), 3000);
 }
 
+// ============================================
+// 주문 생성 (DB 저장)
+// ============================================
+
+async function createOrder(orderData) {
+    try {
+        // 로그인 확인
+        const user = await checkAuth();
+        if (!user) {
+            showNotification('⚠️ 로그인이 필요합니다');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+            return;
+        }
+        
+        // 주문 생성
+        const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .insert([{
+                user_id: user.id,
+                total_amount: orderData.total,
+                status: 'pending',
+                shipping_address: orderData.address,
+                shipping_phone: orderData.phone,
+                shipping_name: orderData.name
+            }])
+            .select()
+            .single();
+        
+        if (orderError) throw orderError;
+        
+        // 주문 아이템 생성
+        const orderItems = cart.map(item => ({
+            order_id: order.id,
+            product_id: item.id,
+            product_name: item.name,
+            quantity: item.quantity,
+            price: item.price
+        }));
+        
+        const { error: itemsError } = await supabase
+            .from('order_items')
+            .insert(orderItems);
+        
+        if (itemsError) throw itemsError;
+        
+        // 적립금 추가 (3%)
+        const pointsToAdd = Math.floor(orderData.total * 0.03);
+        const { error: pointsError } = await supabase
+            .from('points_history')
+            .insert([{
+                user_id: user.id,
+                points: pointsToAdd,
+                type: 'earn',
+                description: `주문 #${order.id} 적립`
+            }]);
+        
+        if (pointsError) throw pointsError;
+        
+        // 장바구니 비우기
+        cart = [];
+        localStorage.setItem('floralCart', JSON.stringify(cart));
+        updateCartCount();
+        
+        return order;
+        
+    } catch (error) {
+        console.error('주문 생성 에러:', error);
+        throw error;
+    }
+}
+
+// ============================================
+// 마이페이지 데이터 로드
+// ============================================
+
+async function loadDashboardData() {
+    try {
+        const user = await checkAuth();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // 사용자 정보 표시
+        const userName = user.user_metadata?.name || user.email.split('@')[0];
+        const userNameEl = document.getElementById('userName');
+        if (userNameEl) userNameEl.textContent = userName;
+        
+        // 적립금 조회
+        const { data: pointsData } = await supabase
+            .from('points_history')
+            .select('points')
+            .eq('user_id', user.id);
+        
+        const totalPoints = pointsData?.reduce((sum, p) => {
+            return p.points > 0 ? sum + p.points : sum - Math.abs(p.points);
+        }, 0) || 0;
+        
+        const userPointsEl = document.getElementById('userPoints');
+        if (userPointsEl) userPointsEl.textContent = `${totalPoints.toLocaleString()}원`;
+        
+        // 주문 내역 조회
+        const { data: orders, error: ordersError } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                order_items (*)
+            `)
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+        
+        if (ordersError) throw ordersError;
+        
+        // 통계 업데이트
+        const totalOrders = orders?.length || 0;
+        const totalSpent = orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
+        
+        // 정기구독 조회
+        const { data: subscriptions } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('status', 'active');
+        
+        const activeSubscriptions = subscriptions?.length || 0;
+        
+        // UI 업데이트
+        const totalOrdersEl = document.querySelector('[data-stat="orders"]');
+        if (totalOrdersEl) totalOrdersEl.textContent = totalOrders;
+        
+        const totalSpentEl = document.querySelector('[data-stat="spent"]');
+        if (totalSpentEl) totalSpentEl.textContent = `${totalSpent.toLocaleString()}원`;
+        
+        const subscriptionsEl = document.querySelector('[data-stat="subscriptions"]');
+        if (subscriptionsEl) subscriptionsEl.textContent = activeSubscriptions;
+        
+        // 주문 목록 렌더링
+        renderOrderList(orders);
+        
+    } catch (error) {
+        console.error('대시보드 로드 에러:', error);
+        showNotification('❌ 데이터를 불러오는데 실패했습니다');
+    }
+}
+
+function renderOrderList(orders) {
+    const orderListEl = document.getElementById('orderList');
+    if (!orderListEl || !orders || orders.length === 0) {
+        if (orderListEl) {
+            orderListEl.innerHTML = '<p class="text-gray-500 text-center py-8">주문 내역이 없습니다</p>';
+        }
+        return;
+    }
+    
+    const statusEmoji = {
+        'pending': '⏳',
+        'confirmed': '✅',
+        'shipped': '🚚',
+        'delivered': '📦',
+        'cancelled': '❌'
+    };
+    
+    const statusText = {
+        'pending': '주문접수',
+        'confirmed': '주문확인',
+        'shipped': '배송중',
+        'delivered': '배송완료',
+        'cancelled': '취소됨'
+    };
+    
+    orderListEl.innerHTML = orders.map(order => {
+        const itemCount = order.order_items?.length || 0;
+        const firstItem = order.order_items?.[0]?.product_name || '상품';
+        const displayName = itemCount > 1 ? `${firstItem} 외 ${itemCount - 1}건` : firstItem;
+        
+        return `
+            <div class="bg-white p-6 rounded-xl border hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg">${displayName}</h3>
+                        <p class="text-sm text-gray-500">${new Date(order.created_at).toLocaleDateString('ko-KR')}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold ${
+                        order.status === 'delivered' ? 'bg-green-100 text-green-700' : 
+                        order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 
+                        'bg-blue-100 text-blue-700'
+                    }">
+                        ${statusEmoji[order.status]} ${statusText[order.status]}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t">
+                    <p class="text-gray-600">총 ${itemCount}개 상품</p>
+                    <p class="font-bold text-xl text-primary">${order.total_amount.toLocaleString()}원</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
 // 메인 페이지
+// ============================================
+
 if (window.location.pathname.includes('flower.html') || window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/신사업/')) {
+    // 로그인 체크
+    setTimeout(() => {
+        checkAuth();
+    }, 500);
+    
     document.querySelectorAll('.quick-add-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -192,8 +456,16 @@ if (window.location.pathname.includes('flower.html') || window.location.pathname
     });
 }
 
+// ============================================
 // 상세 페이지
+// ============================================
+
 if (window.location.pathname.includes('detail.html')) {
+    // 로그인 체크
+    setTimeout(() => {
+        checkAuth();
+    }, 500);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id') || 'spring-peony';
     const product = products[productId];
@@ -264,8 +536,16 @@ if (window.location.pathname.includes('detail.html')) {
     });
 }
 
+// ============================================
 // 장바구니 페이지
+// ============================================
+
 if (window.location.pathname.includes('cart.html')) {
+    // 로그인 체크
+    setTimeout(() => {
+        checkAuth();
+    }, 500);
+    
     function renderCart() {
         const cartItems = document.getElementById('cartItems');
         if (!cartItems) return;
@@ -288,17 +568,17 @@ if (window.location.pathname.includes('cart.html')) {
                             <p class="text-gray-500 text-sm italic">프리미엄 구성</p>
                         </div>
                         <button class="text-gray-400 hover:text-red-500 transition-colors" onclick="removeFromCart('${item.id}')">
-                            <span class="material-symbols-outlined text-sm">close</span>
+                            ✕
                         </button>
                     </div>
                     <div class="flex items-center justify-between mt-4">
                         <div class="flex items-center gap-4 bg-white border px-3 py-1.5 rounded-full">
                             <button onclick="updateQuantity('${item.id}', -1)" class="text-gray-400 hover:text-primary">
-                                <span class="material-symbols-outlined text-sm">remove</span>
+                                −
                             </button>
                             <span class="text-sm font-semibold w-4 text-center">${item.quantity}</span>
                             <button onclick="updateQuantity('${item.id}', 1)" class="text-gray-400 hover:text-primary">
-                                <span class="material-symbols-outlined text-sm">add</span>
+                                +
                             </button>
                         </div>
                         <p class="font-bold text-lg">${(item.price * item.quantity).toLocaleString()}원</p>
@@ -337,7 +617,74 @@ if (window.location.pathname.includes('cart.html')) {
         }
     };
     
+    // 결제하기 버튼
+    window.handleCheckout = async function() {
+        if (cart.length === 0) {
+            showNotification('⚠️ 장바구니가 비어있습니다');
+            return;
+        }
+        
+        // 로그인 확인
+        const user = await checkAuth();
+        if (!user) {
+            showNotification('⚠️ 로그인이 필요합니다');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+            return;
+        }
+        
+        // 배송 정보 입력 (간단한 프롬프트)
+        const name = prompt('받는 분 성함을 입력하세요:', user.user_metadata?.name || '');
+        if (!name) return;
+        
+        const phone = prompt('연락처를 입력하세요:', user.user_metadata?.phone || '');
+        if (!phone) return;
+        
+        const address = prompt('배송 주소를 입력하세요:');
+        if (!address) return;
+        
+        try {
+            showNotification('⏳ 주문 처리 중...');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = Math.floor(subtotal * 0.1);
+            const total = subtotal + tax;
+            
+            const order = await createOrder({
+                name,
+                phone,
+                address,
+                total
+            });
+            
+            showNotification('✅ 주문이 완료되었습니다!');
+            
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('결제 에러:', error);
+            showNotification('❌ 주문 처리 중 오류가 발생했습니다');
+        }
+    };
+    
     renderCart();
+}
+
+// ============================================
+// 대시보드 페이지
+// ============================================
+
+if (window.location.pathname.includes('dashboard.html')) {
+    // 페이지 로드 시 데이터 불러오기
+    setTimeout(() => {
+        loadDashboardData();
+    }, 500);
+    
+    // 로그아웃 버튼
+    window.handleLogout = logout;
 }
 
 // 애니메이션 추가
@@ -351,4 +698,4 @@ style.textContent = `
 document.head.appendChild(style);
 
 updateCartCount();
-console.log('꽃보라가든 웹사이트 로드 완료!');
+console.log('✅ 꽃보라가든 웹사이트 (백엔드 통합) 로드 완료!');
