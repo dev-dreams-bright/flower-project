@@ -13,6 +13,7 @@ const API_BASE = window.API_BASE_URL
         : (window.location.hostname.endsWith('azurestaticapps.net')
             ? PRODUCTION_API_BASE
             : `${window.location.origin}/api`));
+console.log('🔗 API_BASE:', API_BASE);
 
 // DB에서 상품 로드
 let products = {};
@@ -33,6 +34,41 @@ function normalizeProduct(product) {
     };
 }
 
+async function loadProductsFromSupabase() {
+    const supabaseClient = window.supabase;
+    if (!supabaseClient || typeof supabaseClient.from !== 'function') {
+        console.warn('⚠️ Supabase 클라이언트가 준비되지 않았습니다.');
+        return false;
+    }
+    try {
+        const { data, error: sbError } = await supabaseClient
+            .from('products')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+        if (sbError || !Array.isArray(data)) {
+            console.error('Supabase 상품 로드 실패:', sbError);
+            return false;
+        }
+        productsArray = data;
+        const loadedProducts = {};
+        data.forEach(product => {
+            loadedProducts[product.product_id] = normalizeProduct(product);
+        });
+        products = loadedProducts;
+        if (window.location.pathname.includes('flower.html') || 
+            window.location.pathname.includes('index.html') || 
+            window.location.pathname.endsWith('/')) {
+            renderAllProductsGrid();
+            setupMainPageEvents();
+        }
+        return true;
+    } catch (sbFallbackError) {
+        console.error('Supabase 상품 로드 실패:', sbFallbackError);
+        return false;
+    }
+}
+
 // 상품 데이터 로드 함수
 async function loadProductsFromDB() {
     try {
@@ -40,6 +76,12 @@ async function loadProductsFromDB() {
         if (!response.ok) throw new Error('상품 로드 실패');
         
         productsArray = await response.json();
+        console.log('📦 productsArray:', productsArray);
+        if (!Array.isArray(productsArray) || productsArray.length === 0) {
+            console.warn('⚠️ API 응답이 비어있습니다. Supabase 폴백을 시도합니다.');
+            const fallbackLoaded = await loadProductsFromSupabase();
+            return fallbackLoaded;
+        }
         
         // products 객체로 변환 (기존 코드 호환성)
         const loadedProducts = {};
@@ -47,6 +89,7 @@ async function loadProductsFromDB() {
             loadedProducts[product.product_id] = normalizeProduct(product);
         });
         products = loadedProducts;
+        console.log('🧩 products map:', products);
         
         console.log(`✅ DB에서 ${productsArray.length}개 상품 로드 완료`);
         
@@ -62,32 +105,8 @@ async function loadProductsFromDB() {
     } catch (error) {
         console.error('상품 로드 에러:', error);
         // 실패 시 Supabase 직접 조회 폴백 (실제 데이터만)
-        if (typeof supabase !== 'undefined') {
-            try {
-                const { data, error: sbError } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('created_at', { ascending: false });
-                if (!sbError && Array.isArray(data)) {
-                    productsArray = data;
-                    const loadedProducts = {};
-                    data.forEach(product => {
-                        loadedProducts[product.product_id] = normalizeProduct(product);
-                    });
-                    products = loadedProducts;
-                    if (window.location.pathname.includes('flower.html') || 
-                        window.location.pathname.includes('index.html') || 
-                        window.location.pathname.endsWith('/')) {
-                        renderAllProductsGrid();
-                        setupMainPageEvents();
-                    }
-                    return true;
-                }
-            } catch (sbFallbackError) {
-                console.error('Supabase 상품 로드 실패:', sbFallbackError);
-            }
-        }
+        const fallbackLoaded = await loadProductsFromSupabase();
+        if (fallbackLoaded) return true;
         // 실패 시 빈 목록 유지
         products = {};
         productsArray = [];
@@ -264,7 +283,7 @@ function renderAllProductsGrid() {
     }
     if (emptyState) emptyState.classList.add('hidden');
     grid.innerHTML = productsArray.map(product => {
-        const image = (Array.isArray(product.images) && product.images[0]) || 'https://via.placeholder.com/400';
+        const image = (Array.isArray(product.images) && product.images[0]) || product.image || '/default.png';
         const originalPrice = product.original_price;
         const reward = Math.floor(product.price * 0.03);
         const isSoldOut = (product.stock ?? 0) <= 0;
