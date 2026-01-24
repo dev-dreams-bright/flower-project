@@ -324,7 +324,8 @@ async function createOrder(orderData) {
                 name: orderData.name,
                 phone: orderData.phone,
                 address: orderData.address,
-                message: orderData.message || null
+                message: orderData.message || null,
+                paymentMethod: orderData.paymentMethod
             })
         });
 
@@ -672,25 +673,75 @@ if (window.location.pathname.includes('cart.html')) {
             return;
         }
         
-        // 배송 정보 입력 (간단한 프롬프트)
-        const name = prompt('받는 분 성함을 입력하세요:', user.user_metadata?.name || '');
-        if (!name) return;
+        // 폼 데이터 가져오기
+        const name = document.getElementById('recipientName')?.value?.trim();
+        const address = document.getElementById('address')?.value?.trim();
+        const city = document.getElementById('city')?.value?.trim();
+        const postalCode = document.getElementById('postalCode')?.value?.trim();
+        const phone = document.getElementById('phone')?.value?.trim();
+        const message = document.getElementById('message')?.value?.trim();
+        const paymentMethod = document.getElementById('paymentMethod')?.value;
         
-        const phone = prompt('연락처를 입력하세요:', user.user_metadata?.phone || '');
-        if (!phone) return;
+        // 필수 필드 검증
+        if (!name) {
+            showNotification('⚠️ 받는 분 성함을 입력해주세요');
+            document.getElementById('recipientName')?.focus();
+            return;
+        }
+        if (!address) {
+            showNotification('⚠️ 배송 주소를 입력해주세요');
+            document.getElementById('address')?.focus();
+            return;
+        }
+        if (!city) {
+            showNotification('⚠️ 시/도를 입력해주세요');
+            document.getElementById('city')?.focus();
+            return;
+        }
+        if (!postalCode) {
+            showNotification('⚠️ 우편번호를 입력해주세요');
+            document.getElementById('postalCode')?.focus();
+            return;
+        }
+        if (!phone) {
+            showNotification('⚠️ 연락처를 입력해주세요');
+            document.getElementById('phone')?.focus();
+            return;
+        }
+        if (!paymentMethod) {
+            showNotification('⚠️ 결제 방법을 선택해주세요');
+            document.getElementById('paymentMethod')?.focus();
+            return;
+        }
         
-        const address = prompt('배송 주소를 입력하세요:');
-        if (!address) return;
+        // 결제 확인
+        const total = cart.reduce((sum, item) => sum + (item.product_price * item.quantity), 0);
+        const paymentMethodName = {
+            'card': '신용/체크카드',
+            'transfer': '계좌이체',
+            'vbank': '가상계좌',
+            'phone': '휴대폰 결제'
+        }[paymentMethod];
+        
+        const confirmMessage = `${paymentMethodName}(으)로 ${total.toLocaleString()}원을 결제하시겠습니까?`;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
         
         try {
-            showNotification('⏳ 주문 처리 중...');
+            showNotification('⏳ 주문 및 결제 처리 중...');
+            
+            const fullAddress = `${address}, ${city} ${postalCode}`;
+            
             const order = await createOrder({
                 name,
                 phone,
-                address
+                address: fullAddress,
+                message: message || null,
+                paymentMethod
             });
             
-            showNotification('✅ 주문이 완료되었습니다!');
+            showNotification('✅ 주문 및 결제가 완료되었습니다!');
             
             setTimeout(() => {
                 window.location.href = 'dashboard.html';

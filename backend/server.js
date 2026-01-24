@@ -237,10 +237,14 @@ app.delete('/api/cart/:productId', requireAuth, async (req, res) => {
 });
 
 app.post('/api/orders', requireAuth, async (req, res) => {
-    const { name, phone, address, message = null } = req.body || {};
+    const { name, phone, address, message = null, paymentMethod } = req.body || {};
 
     if (!name || !phone || !address) {
         return res.status(400).json({ message: '배송 정보가 올바르지 않습니다.' });
+    }
+    
+    if (!paymentMethod) {
+        return res.status(400).json({ message: '결제 방법을 선택해주세요.' });
     }
 
     try {
@@ -253,6 +257,20 @@ app.post('/api/orders', requireAuth, async (req, res) => {
         const tax = Math.floor(subtotal * 0.1);
         const totalAmount = subtotal + tax;
 
+        // 1. 배송지 저장
+        const { data: shippingAddress, error: shippingError } = await supabase
+            .from('shipping_addresses')
+            .insert([{
+                user_id: req.user.id,
+                name: name,
+                phone: phone,
+                address: address
+            }])
+            .select()
+            .single();
+        if (shippingError) throw shippingError;
+
+        // 2. 주문 생성
         const order = await createOrderWithRetry({
             user_id: req.user.id,
             status: 'pending',
@@ -263,6 +281,7 @@ app.post('/api/orders', requireAuth, async (req, res) => {
             delivery_message: message
         });
 
+        // 3. 주문 아이템 저장
         const orderItems = cartItems.map(item => ({
             order_id: order.id,
             product_id: item.product_id,
@@ -277,6 +296,30 @@ app.post('/api/orders', requireAuth, async (req, res) => {
             .insert(orderItems);
         if (itemsError) throw itemsError;
 
+        // 4. 결제 정보 저장 (테스트 결제 - 즉시 완료)
+        const { data: payment, error: paymentError } = await supabase
+            .from('payments')
+            .insert([{
+                order_id: order.id,
+                user_id: req.user.id,
+                amount: totalAmount,
+                payment_method: paymentMethod,
+                status: 'completed',
+                paid_at: new Date().toISOString(),
+                transaction_id: `TEST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            }])
+            .select()
+            .single();
+        if (paymentError) throw paymentError;
+
+        // 5. 주문 상태 업데이트 (결제 완료)
+        const { error: updateError } = await supabase
+            .from('orders')
+            .update({ status: 'paid' })
+            .eq('id', order.id);
+        if (updateError) throw updateError;
+
+        // 6. 포인트 적립
         const pointsToAdd = Math.floor(totalAmount * 0.03);
         const { error: pointsError } = await supabase
             .from('points_history')
@@ -289,12 +332,17 @@ app.post('/api/orders', requireAuth, async (req, res) => {
             }]);
         if (pointsError) throw pointsError;
 
+        // 7. 장바구니 비우기
         await supabase
             .from('cart_items')
             .delete()
             .eq('user_id', req.user.id);
 
-        res.json(order);
+        res.json({
+            ...order,
+            status: 'paid',
+            payment: payment
+        });
     } catch (error) {
         console.error('주문 생성 실패:', error);
         res.status(500).json({ message: '주문 처리에 실패했습니다.' });
