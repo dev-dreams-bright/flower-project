@@ -353,7 +353,7 @@ app.get('/api/dashboard', requireAuth, async (req, res) => {
     try {
         const { data: profile } = await supabase
             .from('user_profiles')
-            .select('total_points')
+            .select('total_points, role')
             .eq('id', req.user.id)
             .maybeSingle();
 
@@ -373,12 +373,242 @@ app.get('/api/dashboard', requireAuth, async (req, res) => {
 
         res.json({
             totalPoints: profile?.total_points || 0,
+            role: profile?.role || 'customer',
             orders: orders || [],
             subscriptions: subscriptions || []
         });
     } catch (error) {
         console.error('대시보드 조회 실패:', error);
         res.status(500).json({ message: '대시보드 데이터를 불러오지 못했습니다.' });
+    }
+});
+
+// ============================================
+// 상품 관리 API
+// ============================================
+
+// 모든 활성 상품 조회 (인증 불필요)
+app.get('/api/products', async (req, res) => {
+    try {
+        const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json(products || []);
+    } catch (error) {
+        console.error('상품 조회 실패:', error);
+        res.status(500).json({ message: '상품을 불러오지 못했습니다.' });
+    }
+});
+
+// 특정 상품 조회
+app.get('/api/products/:productId', async (req, res) => {
+    try {
+        const { data: product, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('product_id', req.params.productId)
+            .eq('is_active', true)
+            .single();
+        
+        if (error) throw error;
+        res.json(product);
+    } catch (error) {
+        console.error('상품 조회 실패:', error);
+        res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
+    }
+});
+
+// 판매자의 상품 조회
+app.get('/api/seller/products', requireAuth, async (req, res) => {
+    try {
+        const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('seller_id', req.user.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json(products || []);
+    } catch (error) {
+        console.error('판매자 상품 조회 실패:', error);
+        res.status(500).json({ message: '상품을 불러오지 못했습니다.' });
+    }
+});
+
+// 상품 등록 (판매자만)
+app.post('/api/seller/products', requireAuth, async (req, res) => {
+    const { product_id, name, description, price, original_price, category, stock, images } = req.body;
+    
+    if (!product_id || !name || !price) {
+        return res.status(400).json({ message: '상품ID, 이름, 가격은 필수입니다.' });
+    }
+    
+    try {
+        const { data: product, error } = await supabase
+            .from('products')
+            .insert([{
+                seller_id: req.user.id,
+                product_id,
+                name,
+                description: description || null,
+                price,
+                original_price: original_price || null,
+                category: category || null,
+                stock: stock || 0,
+                images: images || []
+            }])
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json(product);
+    } catch (error) {
+        console.error('상품 등록 실패:', error);
+        res.status(500).json({ message: '상품 등록에 실패했습니다.' });
+    }
+});
+
+// 상품 수정 (판매자 자신의 상품만)
+app.put('/api/seller/products/:id', requireAuth, async (req, res) => {
+    const { name, description, price, original_price, category, stock, images, is_active } = req.body;
+    
+    try {
+        const { data: product, error } = await supabase
+            .from('products')
+            .update({
+                name,
+                description,
+                price,
+                original_price,
+                category,
+                stock,
+                images,
+                is_active,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', req.params.id)
+            .eq('seller_id', req.user.id)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json(product);
+    } catch (error) {
+        console.error('상품 수정 실패:', error);
+        res.status(500).json({ message: '상품 수정에 실패했습니다.' });
+    }
+});
+
+// 상품 삭제 (판매자 자신의 상품만)
+app.delete('/api/seller/products/:id', requireAuth, async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', req.params.id)
+            .eq('seller_id', req.user.id);
+        
+        if (error) throw error;
+        res.json({ message: '상품이 삭제되었습니다.' });
+    } catch (error) {
+        console.error('상품 삭제 실패:', error);
+        res.status(500).json({ message: '상품 삭제에 실패했습니다.' });
+    }
+});
+
+// 관리자: 모든 상품 조회
+app.get('/api/admin/products', requireAuth, async (req, res) => {
+    try {
+        // 관리자 권한 확인
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('role')
+            .eq('id', req.user.id)
+            .single();
+        
+        if (profile?.role !== 'admin') {
+            return res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        }
+        
+        const { data: products, error } = await supabase
+            .from('products')
+            .select(`
+                *,
+                seller:user_profiles!products_seller_id_fkey(id, email, name)
+            `)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json(products || []);
+    } catch (error) {
+        console.error('관리자 상품 조회 실패:', error);
+        res.status(500).json({ message: '상품을 불러오지 못했습니다.' });
+    }
+});
+
+// 관리자: 사용자 목록 조회
+app.get('/api/admin/users', requireAuth, async (req, res) => {
+    try {
+        // 관리자 권한 확인
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('role')
+            .eq('id', req.user.id)
+            .single();
+        
+        if (profile?.role !== 'admin') {
+            return res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        }
+        
+        const { data: users, error } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json(users || []);
+    } catch (error) {
+        console.error('사용자 조회 실패:', error);
+        res.status(500).json({ message: '사용자를 불러오지 못했습니다.' });
+    }
+});
+
+// 관리자: 사용자 역할 변경
+app.put('/api/admin/users/:userId/role', requireAuth, async (req, res) => {
+    const { role } = req.body;
+    
+    if (!['admin', 'seller', 'customer'].includes(role)) {
+        return res.status(400).json({ message: '유효하지 않은 역할입니다.' });
+    }
+    
+    try {
+        // 관리자 권한 확인
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('role')
+            .eq('id', req.user.id)
+            .single();
+        
+        if (profile?.role !== 'admin') {
+            return res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        }
+        
+        const { data: user, error } = await supabase
+            .from('user_profiles')
+            .update({ role })
+            .eq('id', req.params.userId)
+            .select()
+            .single();
+        
+        if (error) throw error;
+        res.json(user);
+    } catch (error) {
+        console.error('역할 변경 실패:', error);
+        res.status(500).json({ message: '역할 변경에 실패했습니다.' });
     }
 });
 

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>판매자 관리 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2d5f3f"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="text-2xl">🌸</span>
+<h2 class="text-2xl font-bold text-primary"><a href="flower.html">꽃보라가든</a></h2>
+<span class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full font-semibold">판매자</span>
+</div>
+<div class="flex items-center gap-4">
+<a href="flower.html" class="text-sm hover:text-primary">메인</a>
+<a href="dashboard.html" class="text-sm hover:text-primary">마이페이지</a>
+<button onclick="handleLogout()" class="text-sm text-red-600 hover:text-red-700">로그아웃</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-3xl font-bold mb-2">내 상품 관리</h1>
+<p class="text-gray-600">등록한 상품을 관리하고 새로운 상품을 추가하세요</p>
+</div>
+<button onclick="showAddProductModal()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined">add</span>
+상품 등록
+</button>
+</div>
+
+<!-- 상품 목록 -->
+<div id="productList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- 상품 카드가 여기에 동적으로 추가됩니다 -->
+</div>
+
+<div id="emptyState" class="hidden text-center py-16">
+<span class="text-6xl mb-4 block">📦</span>
+<h3 class="text-xl font-bold mb-2">아직 등록된 상품이 없습니다</h3>
+<p class="text-gray-600 mb-6">첫 번째 상품을 등록해보세요!</p>
+<button onclick="showAddProductModal()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 font-semibold">
+상품 등록하기
+</button>
+</div>
+</main>
+
+<!-- 상품 등록/수정 모달 -->
+<div id="productModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+<div class="p-6 border-b flex justify-between items-center sticky top-0 bg-white">
+<h2 id="modalTitle" class="text-2xl font-bold">상품 등록</h2>
+<button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+
+<form id="productForm" class="p-6 space-y-6">
+<input type="hidden" id="productEditId" />
+
+<div>
+<label class="block text-sm font-semibold mb-2">상품 ID *</label>
+<input type="text" id="productId" required 
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"
+    placeholder="예: rose-bouquet-01"/>
+<p class="text-xs text-gray-500 mt-1">영문 소문자, 숫자, 하이픈(-)만 사용</p>
+</div>
+
+<div>
+<label class="block text-sm font-semibold mb-2">상품명 *</label>
+<input type="text" id="productName" required 
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"
+    placeholder="예: 로맨틱 장미 꽃다발"/>
+</div>
+
+<div>
+<label class="block text-sm font-semibold mb-2">상품 설명</label>
+<textarea id="productDescription" rows="3"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"
+    placeholder="상품에 대한 자세한 설명을 입력하세요"></textarea>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold mb-2">판매가 *</label>
+<input type="number" id="productPrice" required min="0"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"
+    placeholder="49900"/>
+</div>
+<div>
+<label class="block text-sm font-semibold mb-2">정가</label>
+<input type="number" id="productOriginalPrice" min="0"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"
+    placeholder="69900"/>
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold mb-2">카테고리</label>
+<select id="productCategory" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50">
+<option value="">선택하세요</option>
+<option value="bouquet">꽃다발</option>
+<option value="plant">식물</option>
+<option value="subscription">정기구독</option>
+<option value="special">특별한 날</option>
+<option value="other">기타</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold mb-2">재고 수량</label>
+<input type="number" id="productStock" min="0" value="0"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50"/>
+</div>
+</div>
+
+<div>
+<label class="block text-sm font-semibold mb-2">상품 이미지 URL</label>
+<div id="imageInputs" class="space-y-2">
+<input type="url" class="image-url w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50" 
+    placeholder="https://example.com/image1.jpg"/>
+</div>
+<button type="button" onclick="addImageInput()" 
+    class="mt-2 text-sm text-primary hover:underline">+ 이미지 추가</button>
+</div>
+
+<div class="flex items-center gap-2">
+<input type="checkbox" id="productIsActive" checked class="w-4 h-4"/>
+<label for="productIsActive" class="text-sm">상품 활성화 (체크 해제 시 숨김)</label>
+</div>
+
+<div class="flex gap-4 pt-4">
+<button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-primary/90 font-semibold">
+저장하기
+</button>
+<button type="button" onclick="closeModal()" class="px-6 py-3 border rounded-lg hover:bg-gray-50">
+취소
+</button>
+</div>
+</form>
+</div>
+</div>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+<script>
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001/api' 
+    : 'https://flower-backend-api-g0fuavb9b3gxhqgm.koreacentral-01.azurewebsites.net/api';
+
+let currentProducts = [];
+
+// 페이지 로드 시
+async function init() {
+    const user = await checkAuth();
+    if (!user) {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+    }
+    loadProducts();
+}
+
+// 상품 목록 로드
+async function loadProducts() {
+    try {
+        const token = await getAccessToken();
+        const response = await fetch(`${API_BASE}/seller/products`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('상품 로드 실패');
+        
+        currentProducts = await response.json();
+        renderProducts();
+    } catch (error) {
+        console.error('상품 로드 에러:', error);
+        showNotification('❌ 상품을 불러오지 못했습니다');
+    }
+}
+
+// 상품 목록 렌더링
+function renderProducts() {
+    const container = document.getElementById('productList');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (currentProducts.length === 0) {
+        container.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        return;
+    }
+    
+    container.classList.remove('hidden');
+    emptyState.classList.add('hidden');
+    
+    container.innerHTML = currentProducts.map(product => {
+        const images = Array.isArray(product.images) ? product.images : [];
+        const mainImage = images[0] || 'https://via.placeholder.com/400';
+        const discount = product.original_price 
+            ? Math.round((1 - product.price / product.original_price) * 100) 
+            : 0;
+        
+        return `
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm border hover:shadow-lg transition-shadow">
+                <div class="aspect-square bg-gray-100 relative">
+                    <img src="${mainImage}" alt="${product.name}" 
+                        class="w-full h-full object-cover" 
+                        onerror="this.src='https://via.placeholder.com/400'"/>
+                    ${!product.is_active ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">비활성</div>' : ''}
+                    ${discount > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">${discount}% 할인</div>` : ''}
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-lg mb-1">${product.name}</h3>
+                    <p class="text-sm text-gray-600 mb-2 line-clamp-2">${product.description || ''}</p>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="font-bold text-primary text-xl">${product.price.toLocaleString()}원</span>
+                        ${product.original_price ? `<span class="text-gray-400 line-through text-sm">${product.original_price.toLocaleString()}원</span>` : ''}
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span>재고: ${product.stock}개</span>
+                        <span class="text-xs bg-gray-100 px-2 py-1 rounded">${product.category || '미분류'}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editProduct('${product.id}')" 
+                            class="flex-1 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 font-medium">
+                            수정
+                        </button>
+                        <button onclick="deleteProduct('${product.id}')" 
+                            class="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 font-medium">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 상품 추가 모달 표시
+function showAddProductModal() {
+    document.getElementById('modalTitle').textContent = '상품 등록';
+    document.getElementById('productForm').reset();
+    document.getElementById('productEditId').value = '';
+    document.getElementById('productId').disabled = false;
+    document.getElementById('productIsActive').checked = true;
+    document.getElementById('productModal').classList.remove('hidden');
+}
+
+// 상품 수정
+async function editProduct(id) {
+    const product = currentProducts.find(p => p.id === id);
+    if (!product) return;
+    
+    document.getElementById('modalTitle').textContent = '상품 수정';
+    document.getElementById('productEditId').value = product.id;
+    document.getElementById('productId').value = product.product_id;
+    document.getElementById('productId').disabled = true;
+    document.getElementById('productName').value = product.name;
+    document.getElementById('productDescription').value = product.description || '';
+    document.getElementById('productPrice').value = product.price;
+    document.getElementById('productOriginalPrice').value = product.original_price || '';
+    document.getElementById('productCategory').value = product.category || '';
+    document.getElementById('productStock').value = product.stock;
+    document.getElementById('productIsActive').checked = product.is_active;
+    
+    // 이미지 입력 필드 재구성
+    const imageInputs = document.getElementById('imageInputs');
+    const images = Array.isArray(product.images) ? product.images : [];
+    imageInputs.innerHTML = images.map(url => 
+        `<input type="url" class="image-url w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50" value="${url}"/>`
+    ).join('');
+    
+    if (images.length === 0) {
+        imageInputs.innerHTML = '<input type="url" class="image-url w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50" placeholder="https://example.com/image1.jpg"/>';
+    }
+    
+    document.getElementById('productModal').classList.remove('hidden');
+}
+
+// 상품 삭제
+async function deleteProduct(id) {
+    if (!confirm('정말 이 상품을 삭제하시겠습니까?')) return;
+    
+    try {
+        const token = await getAccessToken();
+        const response = await fetch(`${API_BASE}/seller/products/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('상품 삭제 실패');
+        
+        showNotification('✅ 상품이 삭제되었습니다');
+        loadProducts();
+    } catch (error) {
+        console.error('상품 삭제 에러:', error);
+        showNotification('❌ 상품 삭제에 실패했습니다');
+    }
+}
+
+// 이미지 입력 필드 추가
+function addImageInput() {
+    const container = document.getElementById('imageInputs');
+    const input = document.createElement('input');
+    input.type = 'url';
+    input.className = 'image-url w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/50';
+    input.placeholder = 'https://example.com/image.jpg';
+    container.appendChild(input);
+}
+
+// 모달 닫기
+function closeModal() {
+    document.getElementById('productModal').classList.add('hidden');
+}
+
+// 폼 제출
+document.getElementById('productForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const editId = document.getElementById('productEditId').value;
+    const productId = document.getElementById('productId').value.trim();
+    const name = document.getElementById('productName').value.trim();
+    const description = document.getElementById('productDescription').value.trim();
+    const price = parseInt(document.getElementById('productPrice').value);
+    const originalPrice = document.getElementById('productOriginalPrice').value 
+        ? parseInt(document.getElementById('productOriginalPrice').value) 
+        : null;
+    const category = document.getElementById('productCategory').value;
+    const stock = parseInt(document.getElementById('productStock').value);
+    const isActive = document.getElementById('productIsActive').checked;
+    
+    // 이미지 URL 수집
+    const imageInputs = document.querySelectorAll('.image-url');
+    const images = Array.from(imageInputs)
+        .map(input => input.value.trim())
+        .filter(url => url !== '');
+    
+    const productData = {
+        product_id: productId,
+        name,
+        description,
+        price,
+        original_price: originalPrice,
+        category,
+        stock,
+        images,
+        is_active: isActive
+    };
+    
+    try {
+        const token = await getAccessToken();
+        const url = editId 
+            ? `${API_BASE}/seller/products/${editId}`
+            : `${API_BASE}/seller/products`;
+        
+        const response = await fetch(url, {
+            method: editId ? 'PUT' : 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(productData)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || '저장 실패');
+        }
+        
+        showNotification(`✅ 상품이 ${editId ? '수정' : '등록'}되었습니다`);
+        closeModal();
+        loadProducts();
+    } catch (error) {
+        console.error('상품 저장 에러:', error);
+        showNotification(`❌ ${error.message}`);
+    }
+});
+
+// 로그아웃
+async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+        window.location.href = 'login.html';
+    }
+}
+
+// 초기화
+window.showAddProductModal = showAddProductModal;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
+window.addImageInput = addImageInput;
+window.closeModal = closeModal;
+window.handleLogout = handleLogout;
+
+setTimeout(init, 500);
+</script>
+</body>
+</html>

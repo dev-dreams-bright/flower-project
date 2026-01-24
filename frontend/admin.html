@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>관리자 페이지 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2d5f3f"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="text-2xl">🌸</span>
+<h2 class="text-2xl font-bold text-primary"><a href="flower.html">꽃보라가든</a></h2>
+<span class="text-sm bg-red-500/10 text-red-600 px-3 py-1 rounded-full font-semibold">관리자</span>
+</div>
+<div class="flex items-center gap-4">
+<a href="flower.html" class="text-sm hover:text-primary">메인</a>
+<button onclick="handleLogout()" class="text-sm text-red-600 hover:text-red-700">로그아웃</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+<!-- 탭 -->
+<div class="flex gap-4 mb-8 border-b">
+<button onclick="showTab('users')" id="usersTab" class="px-6 py-3 font-semibold border-b-2 border-primary text-primary">
+사용자 관리
+</button>
+<button onclick="showTab('products')" id="productsTab" class="px-6 py-3 font-semibold text-gray-500 hover:text-primary">
+상품 관리
+</button>
+<button onclick="showTab('orders')" id="ordersTab" class="px-6 py-3 font-semibold text-gray-500 hover:text-primary">
+주문 관리
+</button>
+</div>
+
+<!-- 사용자 관리 탭 -->
+<div id="usersContent" class="tab-content">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold">사용자 관리</h2>
+<span id="userCount" class="text-gray-600"></span>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50 border-b">
+<tr>
+<th class="px-6 py-3 text-left text-sm font-semibold">이메일</th>
+<th class="px-6 py-3 text-left text-sm font-semibold">이름</th>
+<th class="px-6 py-3 text-left text-sm font-semibold">역할</th>
+<th class="px-6 py-3 text-left text-sm font-semibold">포인트</th>
+<th class="px-6 py-3 text-left text-sm font-semibold">가입일</th>
+<th class="px-6 py-3 text-left text-sm font-semibold">관리</th>
+</tr>
+</thead>
+<tbody id="usersTable" class="divide-y">
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 상품 관리 탭 -->
+<div id="productsContent" class="tab-content hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold">전체 상품</h2>
+<span id="productCount" class="text-gray-600"></span>
+</div>
+
+<div id="productList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+</div>
+</div>
+
+<!-- 주문 관리 탭 -->
+<div id="ordersContent" class="tab-content hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-2xl font-bold">주문 관리</h2>
+<span id="orderCount" class="text-gray-600"></span>
+</div>
+<div class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+주문 관리 기능은 곧 추가됩니다
+</div>
+</div>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+<script>
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001/api' 
+    : 'https://flower-backend-api-g0fuavb9b3gxhqgm.koreacentral-01.azurewebsites.net/api';
+
+let currentUsers = [];
+let currentProducts = [];
+
+// 페이지 로드 시
+async function init() {
+    const user = await checkAuth();
+    if (!user) {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // 관리자 권한 확인은 API 호출 시 서버에서 처리
+    loadUsers();
+}
+
+// 탭 전환
+function showTab(tab) {
+    // 모든 탭 콘텐츠 숨기기
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('[id$="Tab"]').forEach(btn => {
+        btn.classList.remove('border-b-2', 'border-primary', 'text-primary');
+        btn.classList.add('text-gray-500');
+    });
+    
+    // 선택한 탭 활성화
+    document.getElementById(`${tab}Content`).classList.remove('hidden');
+    document.getElementById(`${tab}Tab`).classList.add('border-b-2', 'border-primary', 'text-primary');
+    document.getElementById(`${tab}Tab`).classList.remove('text-gray-500');
+    
+    // 데이터 로드
+    if (tab === 'users') loadUsers();
+    if (tab === 'products') loadProducts();
+}
+
+// 사용자 목록 로드
+async function loadUsers() {
+    try {
+        const token = await getAccessToken();
+        const response = await fetch(`${API_BASE}/admin/users`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 403) {
+                alert('관리자 권한이 필요합니다.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            throw new Error('사용자 로드 실패');
+        }
+        
+        currentUsers = await response.json();
+        renderUsers();
+    } catch (error) {
+        console.error('사용자 로드 에러:', error);
+        showNotification('❌ 사용자를 불러오지 못했습니다');
+    }
+}
+
+// 사용자 목록 렌더링
+function renderUsers() {
+    const tbody = document.getElementById('usersTable');
+    document.getElementById('userCount').textContent = `총 ${currentUsers.length}명`;
+    
+    tbody.innerHTML = currentUsers.map(user => {
+        const roleColors = {
+            admin: 'bg-red-100 text-red-700',
+            seller: 'bg-blue-100 text-blue-700',
+            customer: 'bg-gray-100 text-gray-700'
+        };
+        const roleNames = {
+            admin: '관리자',
+            seller: '판매자',
+            customer: '고객'
+        };
+        
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm">${user.email}</td>
+                <td class="px-6 py-4 text-sm">${user.name || '-'}</td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${roleColors[user.role] || roleColors.customer}">
+                        ${roleNames[user.role] || '고객'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm">${(user.total_points || 0).toLocaleString()}P</td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(user.created_at).toLocaleDateString()}</td>
+                <td class="px-6 py-4 text-sm">
+                    <select onchange="changeUserRole('${user.id}', this.value)" 
+                        class="px-3 py-1 border rounded text-sm"
+                        ${user.role === 'admin' ? 'disabled' : ''}>
+                        <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>고객</option>
+                        <option value="seller" ${user.role === 'seller' ? 'selected' : ''}>판매자</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>관리자</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// 사용자 역할 변경
+async function changeUserRole(userId, newRole) {
+    if (!confirm(`이 사용자의 역할을 ${newRole}(으)로 변경하시겠습니까?`)) {
+        loadUsers(); // 원래대로 되돌리기
+        return;
+    }
+    
+    try {
+        const token = await getAccessToken();
+        const response = await fetch(`${API_BASE}/admin/users/${userId}/role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ role: newRole })
+        });
+        
+        if (!response.ok) throw new Error('역할 변경 실패');
+        
+        showNotification('✅ 역할이 변경되었습니다');
+        loadUsers();
+    } catch (error) {
+        console.error('역할 변경 에러:', error);
+        showNotification('❌ 역할 변경에 실패했습니다');
+        loadUsers();
+    }
+}
+
+// 상품 목록 로드
+async function loadProducts() {
+    try {
+        const token = await getAccessToken();
+        const response = await fetch(`${API_BASE}/admin/products`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('상품 로드 실패');
+        
+        currentProducts = await response.json();
+        renderProducts();
+    } catch (error) {
+        console.error('상품 로드 에러:', error);
+        showNotification('❌ 상품을 불러오지 못했습니다');
+    }
+}
+
+// 상품 목록 렌더링
+function renderProducts() {
+    const container = document.getElementById('productList');
+    document.getElementById('productCount').textContent = `총 ${currentProducts.length}개`;
+    
+    container.innerHTML = currentProducts.map(product => {
+        const images = Array.isArray(product.images) ? product.images : [];
+        const mainImage = images[0] || 'https://via.placeholder.com/400';
+        const sellerName = product.seller?.name || product.seller?.email || '알 수 없음';
+        
+        return `
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm border">
+                <div class="aspect-square bg-gray-100 relative">
+                    <img src="${mainImage}" alt="${product.name}" 
+                        class="w-full h-full object-cover"
+                        onerror="this.src='https://via.placeholder.com/400'"/>
+                    ${!product.is_active ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">비활성</div>' : ''}
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold mb-1">${product.name}</h3>
+                    <p class="text-sm text-gray-600 mb-2">판매자: ${sellerName}</p>
+                    <p class="font-bold text-primary mb-2">${product.price.toLocaleString()}원</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>재고: ${product.stock}개</span>
+                        <span>${product.category || '미분류'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 로그아웃
+async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+        window.location.href = 'login.html';
+    }
+}
+
+// 초기화
+window.showTab = showTab;
+window.changeUserRole = changeUserRole;
+window.handleLogout = handleLogout;
+
+setTimeout(init, 500);
+</script>
+</body>
+</html>

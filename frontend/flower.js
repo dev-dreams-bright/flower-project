@@ -14,7 +14,51 @@ const API_BASE = window.API_BASE_URL
             ? PRODUCTION_API_BASE
             : `${window.location.origin}/api`));
 
-const products = {
+// DB에서 상품 로드
+let products = {};
+let productsArray = [];
+
+// 상품 데이터 로드 함수
+async function loadProductsFromDB() {
+    try {
+        const response = await fetch(`${API_BASE}/products`);
+        if (!response.ok) throw new Error('상품 로드 실패');
+        
+        productsArray = await response.json();
+        
+        // products 객체로 변환 (기존 코드 호환성)
+        products = {};
+        productsArray.forEach(product => {
+            products[product.product_id] = {
+                id: product.product_id,
+                name: product.name,
+                price: product.price,
+                originalPrice: product.original_price,
+                reward: Math.floor(product.price * 0.03),
+                image: (Array.isArray(product.images) && product.images[0]) || 'https://via.placeholder.com/400',
+                description: product.description,
+                images: Array.isArray(product.images) ? product.images : [],
+                stock: product.stock
+            };
+        });
+        
+        console.log(`✅ DB에서 ${productsArray.length}개 상품 로드 완료`);
+        
+        // 메인 페이지라면 상품 카드 다시 렌더링
+        if (window.location.pathname.includes('flower.html') || 
+            window.location.pathname.includes('index.html') || 
+            window.location.pathname.endsWith('/')) {
+            renderProductCards();
+        }
+    } catch (error) {
+        console.error('상품 로드 에러:', error);
+        // 실패 시 빈 객체 유지
+        products = {};
+    }
+}
+
+// 임시 products 객체 (DB 로드 전 폴백용)
+const productsLegacy = {
     'spring-peony': {
         id: 'spring-peony',
         name: '봄날의 작약 꽃다발',
@@ -136,6 +180,40 @@ const products = {
         ]
     }
 };
+
+// 상품 카드 렌더링 함수
+function renderProductCards() {
+    // 메인 페이지의 상품 카드 업데이트
+    document.querySelectorAll('[data-product]').forEach(card => {
+        const productId = card.getAttribute('data-product');
+        const product = products[productId];
+        if (!product) return;
+        
+        // 이미지 업데이트
+        const imgDiv = card.querySelector('.bg-center.bg-cover');
+        if (imgDiv && product.image) {
+            imgDiv.style.backgroundImage = `url("${product.image}")`;
+        }
+        
+        // 가격 업데이트
+        const priceEl = card.querySelector('.text-primary.font-bold.text-xl');
+        if (priceEl) {
+            priceEl.textContent = `${product.price.toLocaleString()}원`;
+        }
+        
+        // 정가 업데이트
+        const originalPriceEl = card.querySelector('.line-through');
+        if (originalPriceEl && product.originalPrice) {
+            originalPriceEl.textContent = `${product.originalPrice.toLocaleString()}원`;
+        }
+        
+        // 적립금 업데이트
+        const rewardEl = card.querySelector('.text-xs.text-primary span:last-child');
+        if (rewardEl) {
+            rewardEl.textContent = `${product.reward.toLocaleString()}원 적립 (3%)`;
+        }
+    });
+}
 
 // ============================================
 // 인증 시스템
@@ -359,8 +437,19 @@ async function loadDashboardData() {
         
         const dashboard = await apiRequest('/dashboard');
         const totalPoints = dashboard?.totalPoints || 0;
+        const userRole = dashboard?.role || 'customer';
         const orders = dashboard?.orders || [];
         const subscriptions = dashboard?.subscriptions || [];
+
+        // 역할 기반 링크 표시
+        if (userRole === 'seller' || userRole === 'admin') {
+            const sellerLink = document.getElementById('sellerLink');
+            if (sellerLink) sellerLink.classList.remove('hidden');
+        }
+        if (userRole === 'admin') {
+            const adminLink = document.getElementById('adminLink');
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
 
         const userPointsEl = document.getElementById('userPoints');
         if (userPointsEl) userPointsEl.textContent = `${totalPoints.toLocaleString()}원`;
@@ -454,6 +543,9 @@ if (window.location.pathname.includes('flower.html') ||
     window.location.pathname.endsWith('/신사업/') || 
     window.location.pathname.endsWith('/frontend/') ||
     window.location.pathname.endsWith('/frontend')) {
+    // DB에서 상품 로드
+    loadProductsFromDB();
+    
     // 로그인 체크
     setTimeout(() => {
         checkAuth();
