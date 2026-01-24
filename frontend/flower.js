@@ -448,7 +448,12 @@ function renderOrderList(orders) {
 // 메인 페이지
 // ============================================
 
-if (window.location.pathname.includes('flower.html') || window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/신사업/')) {
+if (window.location.pathname.includes('flower.html') || 
+    window.location.pathname.includes('index.html') || 
+    window.location.pathname.endsWith('/') || 
+    window.location.pathname.endsWith('/신사업/') || 
+    window.location.pathname.endsWith('/frontend/') ||
+    window.location.pathname.endsWith('/frontend')) {
     // 로그인 체크
     setTimeout(() => {
         checkAuth();

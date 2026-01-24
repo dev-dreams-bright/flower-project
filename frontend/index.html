@@ -1,17 +1,222 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html class="light" lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <meta http-equiv="refresh" content="0; url=flower.html"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>꽃보라가든 - 리다이렉팅...</title>
-    <script>
-        // 즉시 flower.html로 이동
-        window.location.href = 'flower.html';
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>꽃보라가든 | 일상을 꽃으로 물들이다</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2d5f3f",
+                        "primary-light": "#4a7c5e",
+                        "background-light": "#f8faf9",
+                        "muted-sage": "#5a735f",
+                        "cream": "#fdfdfb"
+                    },
+                    fontFamily: {
+                        "display": ["Noto Sans KR", "sans-serif"]
+                    },
+                },
+            },
+        }
     </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
 </head>
-<body>
-    <p>꽃보라가든으로 이동중...</p>
-    <p>자동으로 이동하지 않으면 <a href="flower.html">여기</a>를 클릭하세요.</p>
+<body class="bg-background-light">
+<header class="flex items-center justify-between border-b px-10 py-5 bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+<div class="flex items-center gap-4">
+<h2 class="text-2xl font-bold text-primary tracking-tight">꽃보라가든</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#new-arrivals">신상품</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#best-sellers">베스트</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#subscription">정기구독</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#plants">식물</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#special-day">특별한 날</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#story">스토리</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="dashboard.html">마이페이지</a>
+</nav>
+<div class="flex items-center gap-3">
+<a href="login.html" class="px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors">
+로그인
+</a>
+<button id="cartBtn" class="flex items-center justify-center rounded-full h-10 w-10 hover:bg-primary/10 relative transition-colors">
+<span class="text-2xl">🛒</span>
+<span id="cartCount" class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full hidden"></span>
+</button>
+</div>
+</header>
+
+<main>
+<!-- Hero Section -->
+<div class="w-full max-w-[1440px] mx-auto px-4 md:px-10 py-6">
+<div class="relative overflow-hidden rounded-2xl shadow-2xl">
+<div class="flex min-h-[640px] flex-col gap-6 bg-cover bg-center items-center justify-center p-8 text-center" style='background-image: linear-gradient(rgba(45,95,63,0.3), rgba(45,95,63,0.6)), url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1200&q=80");'>
+<h1 class="text-white text-5xl md:text-7xl font-bold leading-tight">일상을 꽃으로 <span class="text-white/90">물들이다</span></h1>
+<p class="text-white text-xl max-w-2xl leading-relaxed">당신의 특별한 순간을 더욱 아름답게 만드는 꽃보라가든입니다</p>
+<button class="rounded-full h-14 px-10 bg-white text-primary font-bold hover:scale-105 transition-transform shadow-lg" onclick="document.getElementById('new-arrivals').scrollIntoView({behavior:'smooth'})">꽃 둘러보기</button>
+</div>
+</div>
+</div>
+
+<!-- Features -->
+<div class="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 py-20 px-10">
+<div class="flex flex-col items-center text-center gap-4 p-6 rounded-xl hover:shadow-lg transition-shadow">
+<span class="material-symbols-outlined text-primary text-4xl">eco</span>
+<h3 class="font-bold text-xl">신선한 꽃</h3>
+<p class="text-muted-sage">매일 아침 직접 선별한 신선한 꽃</p>
+</div>
+<div class="flex flex-col items-center text-center gap-4 p-6 rounded-xl hover:shadow-lg transition-shadow">
+<span class="material-symbols-outlined text-primary text-4xl">local_shipping</span>
+<h3 class="font-bold text-xl">빠른 배송</h3>
+<p class="text-muted-sage">당일 배송 서비스 제공</p>
+</div>
+</div>
+
+<!-- Event Banner -->
+<div class="w-full max-w-[1200px] mx-auto px-4 md:px-10 mb-12">
+<div class="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 border-2 border-primary/20">
+<div class="flex flex-col md:flex-row items-center justify-between gap-6">
+<div>
+<span class="text-xs font-bold uppercase text-primary">🎉 특별 이벤트</span>
+<h3 class="text-3xl font-bold mt-2">신규 회원 가입 혜택</h3>
+<p class="text-muted-sage mt-3 text-lg">지금 가입하시고 웰컴 쿠폰 받으세요!</p>
+</div>
+<button class="px-8 py-4 bg-primary text-white font-bold rounded-full hover:scale-105 transition-transform shadow-lg whitespace-nowrap">자세히 보기</button>
+</div>
+</div>
+</div>
+
+<!-- New Arrivals -->
+<div id="new-arrivals" class="w-full max-w-[1200px] mx-auto px-4 md:px-10 py-16">
+<div class="flex justify-between items-end mb-10">
+<div>
+<span class="text-primary font-bold uppercase tracking-widest text-sm">🌸 신상품</span>
+<h2 class="text-4xl md:text-5xl font-bold mt-3">새로 들어온 꽃</h2>
+</div>
+<a class="text-muted-sage font-medium flex items-center gap-2 hover:text-primary transition-colors" href="#">
+전체보기 <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="group cursor-pointer" data-product="spring-peony">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-lg">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full p-2 hover:bg-black/50">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-primary px-8 py-3 rounded-full font-bold quick-add-btn hover:bg-primary hover:text-white transition-colors" data-id="spring-peony">장바구니 담기</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-full text-xs font-bold">신상품</span>
+</div>
+<div class="mt-4">
+<h3 class="text-lg font-bold">봄날의 작약 꽃다발</h3>
+<p class="text-muted-sage text-sm">은은한 핑크빛 작약</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-xl">89,000원</p>
+<span class="text-gray-400 line-through text-sm">162,000원</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-2">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>2,670원 적립 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="blue-hydrangea">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-lg">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1594582285116-b7bbe8d1c9fe?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full p-2 hover:bg-black/50">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-primary px-8 py-3 rounded-full font-bold quick-add-btn hover:bg-primary hover:text-white transition-colors" data-id="blue-hydrangea">장바구니 담기</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-full text-xs font-bold">신상품</span>
+</div>
+<div class="mt-4">
+<h3 class="text-lg font-bold">하늘빛 수국 꽃다발</h3>
+<p class="text-muted-sage text-sm">맑은 하늘빛 감성</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-xl">37,900원</p>
+<span class="text-gray-400 line-through text-sm">59,900원</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-2">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>1,137원 적립 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="rose-box">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-lg">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full p-2 hover:bg-black/50">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-primary px-8 py-3 rounded-full font-bold quick-add-btn hover:bg-primary hover:text-white transition-colors" data-id="rose-box">장바구니 담기</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-full text-xs font-bold">신상품</span>
+</div>
+<div class="mt-4">
+<h3 class="text-lg font-bold">영원한 로즈 하트</h3>
+<p class="text-muted-sage text-sm">시들지 않는 장미</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-xl">25,900원</p>
+<span class="text-gray-400 line-through text-sm">42,000원</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-2">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>777원 적립 (3%)</span>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer" data-product="pink-bouquet">
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-lg">
+<div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=600&q=80");'></div>
+<button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full p-2 hover:bg-black/50">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+<div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+<button class="bg-white text-primary px-8 py-3 rounded-full font-bold quick-add-btn hover:bg-primary hover:text-white transition-colors" data-id="pink-bouquet">장바구니 담기</button>
+</div>
+<span class="absolute top-4 left-4 bg-primary text-white px-4 py-2 rounded-full text-xs font-bold">신상품</span>
+</div>
+<div class="mt-4">
+<h3 class="text-lg font-bold">플라워 토끼 인형</h3>
+<p class="text-muted-sage text-sm">귀여운 꽃 토끼</p>
+<div class="flex items-center gap-2 mt-2">
+<p class="text-primary font-bold text-xl">29,900원</p>
+<span class="text-gray-400 line-through text-sm">45,000원</span>
+</div>
+<div class="flex items-center gap-1 text-xs text-primary mt-2">
+<span class="material-symbols-outlined text-sm">stars</span>
+<span>897원 적립 (3%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+// Supabase 초기화
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log('✅ Supabase 연결 완료!');
+</script>
+<script src="flower.js"></script>
 </body>
 </html>
