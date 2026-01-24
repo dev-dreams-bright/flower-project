@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>브랜드 스토리 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: { extend: { colors: { "primary": "#2d5f3f" } } }
+        }
+    </script>
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white border-b">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🌸</span>
+            <h2 class="text-2xl font-bold text-primary"><a href="flower.html">꽃보라가든</a></h2>
+        </div>
+        <a href="flower.html" class="text-sm text-gray-600 hover:text-primary">홈으로</a>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-12">
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="aspect-square rounded-3xl overflow-hidden shadow-2xl">
+            <div class="w-full h-full bg-center bg-cover" style="background-image:url('https://images.unsplash.com/photo-1522689127545-f296c3dbc8ed?w=1000&q=80');"></div>
+        </div>
+        <div class="space-y-6">
+            <span class="text-primary font-bold">🌸 2012년부터</span>
+            <h1 class="text-4xl md:text-5xl font-black leading-tight">자연의 아름다움을<br/>일상으로 가져오다</h1>
+            <p class="text-gray-600 leading-relaxed">
+                꽃보라가든은 매일 아침 직접 선별한 신선한 꽃으로 고객님의 마음을 전합니다.
+                선물로만 인식되던 꽃을 일상 속에 가깝게, 더 따뜻하게 전하는 것이 우리의 목표입니다.
+            </p>
+            <div class="flex gap-4">
+                <a href="flower.html" class="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90">쇼핑하기</a>
+                <a href="event.html" class="px-6 py-3 border border-primary text-primary font-bold rounded-xl hover:bg-primary/10">신규 회원 혜택</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 class="text-xl font-bold mb-2">신선함</h3>
+            <p class="text-sm text-gray-600">매일 아침 선별한 꽃으로 최고의 컨디션을 유지합니다.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 class="text-xl font-bold mb-2">디자인</h3>
+            <p class="text-sm text-gray-600">플로리스트의 세심한 감각으로 특별한 순간을 완성합니다.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 class="text-xl font-bold mb-2">신뢰</h3>
+            <p class="text-sm text-gray-600">정확한 배송과 꼼꼼한 패키징으로 신뢰를 지킵니다.</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

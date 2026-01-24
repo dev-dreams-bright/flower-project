@@ -384,6 +384,235 @@ app.get('/api/dashboard', requireAuth, async (req, res) => {
 });
 
 // ============================================
+// 프로필 / 배송지 / 적립금 / 구독 / 배송추적
+// ============================================
+
+app.get('/api/profile', requireAuth, async (req, res) => {
+    try {
+        const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .select('id, email, name, phone')
+            .eq('id', req.user.id)
+            .maybeSingle();
+        if (error) throw error;
+        res.json(profile || {});
+    } catch (error) {
+        console.error('프로필 조회 실패:', error);
+        res.status(500).json({ message: '프로필 정보를 불러오지 못했습니다.' });
+    }
+});
+
+app.put('/api/profile', requireAuth, async (req, res) => {
+    const { name, phone } = req.body || {};
+    try {
+        const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .update({ name: name || null, phone: phone || null, updated_at: new Date().toISOString() })
+            .eq('id', req.user.id)
+            .select()
+            .single();
+        if (error) throw error;
+        res.json(profile);
+    } catch (error) {
+        console.error('프로필 업데이트 실패:', error);
+        res.status(500).json({ message: '프로필을 업데이트하지 못했습니다.' });
+    }
+});
+
+app.get('/api/addresses', requireAuth, async (req, res) => {
+    try {
+        const { data: addresses, error } = await supabase
+            .from('shipping_addresses')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(addresses || []);
+    } catch (error) {
+        console.error('배송지 조회 실패:', error);
+        res.status(500).json({ message: '배송지를 불러오지 못했습니다.' });
+    }
+});
+
+app.post('/api/addresses', requireAuth, async (req, res) => {
+    const { name, phone, address, isDefault = false } = req.body || {};
+    if (!name || !phone || !address) {
+        return res.status(400).json({ message: '배송지 정보가 올바르지 않습니다.' });
+    }
+    try {
+        if (isDefault) {
+            await supabase
+                .from('shipping_addresses')
+                .update({ is_default: false })
+                .eq('user_id', req.user.id);
+        }
+        const { data, error } = await supabase
+            .from('shipping_addresses')
+            .insert([{
+                user_id: req.user.id,
+                name,
+                phone,
+                address,
+                is_default: !!isDefault
+            }])
+            .select()
+            .single();
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('배송지 등록 실패:', error);
+        res.status(500).json({ message: '배송지를 등록하지 못했습니다.' });
+    }
+});
+
+app.delete('/api/addresses/:id', requireAuth, async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('shipping_addresses')
+            .delete()
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+        if (error) throw error;
+        res.json({ message: '삭제되었습니다.' });
+    } catch (error) {
+        console.error('배송지 삭제 실패:', error);
+        res.status(500).json({ message: '배송지를 삭제하지 못했습니다.' });
+    }
+});
+
+app.get('/api/points', requireAuth, async (req, res) => {
+    try {
+        const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('total_points')
+            .eq('id', req.user.id)
+            .maybeSingle();
+        const { data: history, error } = await supabase
+            .from('points_history')
+            .select('*')
+            .eq('user_id', req.user.id)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json({
+            totalPoints: profile?.total_points || 0,
+            history: history || []
+        });
+    } catch (error) {
+        console.error('적립 내역 조회 실패:', error);
+        res.status(500).json({ message: '적립 내역을 불러오지 못했습니다.' });
+    }
+});
+
+app.post('/api/subscriptions', requireAuth, async (req, res) => {
+    const { planType, deliveryAddress, nextDeliveryDate } = req.body || {};
+    if (!planType || !deliveryAddress || !nextDeliveryDate) {
+        return res.status(400).json({ message: '구독 정보가 올바르지 않습니다.' });
+    }
+    try {
+        const { data, error } = await supabase
+            .from('subscriptions')
+            .insert([{
+                user_id: req.user.id,
+                plan_type: planType,
+                delivery_address: deliveryAddress,
+                next_delivery_date: nextDeliveryDate,
+                status: 'active'
+            }])
+            .select()
+            .single();
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('구독 생성 실패:', error);
+        res.status(500).json({ message: '구독을 생성하지 못했습니다.' });
+    }
+});
+
+app.get('/api/orders/track', requireAuth, async (req, res) => {
+    const { orderNumber } = req.query;
+    if (!orderNumber) {
+        return res.status(400).json({ message: '주문번호가 필요합니다.' });
+    }
+    try {
+        const { data: order, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('order_number', orderNumber)
+            .eq('user_id', req.user.id)
+            .single();
+        if (error) throw error;
+        res.json(order);
+    } catch (error) {
+        console.error('배송 추적 실패:', error);
+        res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
+    }
+});
+
+app.post('/api/orders/:orderId/reorder', requireAuth, async (req, res) => {
+    try {
+        const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('id', req.params.orderId)
+            .eq('user_id', req.user.id)
+            .single();
+        if (orderError || !order) {
+            return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
+        }
+
+        const { data: items, error: itemsError } = await supabase
+            .from('order_items')
+            .select('*')
+            .eq('order_id', order.id);
+        if (itemsError) throw itemsError;
+
+        for (const item of items || []) {
+            let query = supabase
+                .from('cart_items')
+                .select('id, quantity')
+                .eq('user_id', req.user.id)
+                .eq('product_id', item.product_id);
+
+            if (item.size) {
+                query = query.eq('size', item.size);
+            } else {
+                query = query.is('size', null);
+            }
+
+            const { data: existingItem, error: existingError } = await query.maybeSingle();
+            if (existingError) throw existingError;
+
+            if (existingItem) {
+                const { error: updateError } = await supabase
+                    .from('cart_items')
+                    .update({ quantity: existingItem.quantity + item.quantity })
+                    .eq('id', existingItem.id);
+                if (updateError) throw updateError;
+            } else {
+                const { error: insertError } = await supabase
+                    .from('cart_items')
+                    .insert([{
+                        user_id: req.user.id,
+                        product_id: item.product_id,
+                        product_name: item.product_name,
+                        product_price: item.product_price,
+                        product_image: null,
+                        quantity: item.quantity,
+                        size: item.size || null
+                    }]);
+                if (insertError) throw insertError;
+            }
+        }
+
+        const itemsAfter = await fetchCartItems(req.user.id);
+        res.json({ items: itemsAfter });
+    } catch (error) {
+        console.error('재주문 실패:', error);
+        res.status(500).json({ message: '재주문에 실패했습니다.' });
+    }
+});
+
+// ============================================
 // 상품 관리 API
 // ============================================
 

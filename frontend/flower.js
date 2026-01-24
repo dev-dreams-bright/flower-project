@@ -27,9 +27,9 @@ async function loadProductsFromDB() {
         productsArray = await response.json();
         
         // products 객체로 변환 (기존 코드 호환성)
-        products = {};
+        const loadedProducts = {};
         productsArray.forEach(product => {
-            products[product.product_id] = {
+            loadedProducts[product.product_id] = {
                 id: product.product_id,
                 name: product.name,
                 price: product.price,
@@ -42,6 +42,7 @@ async function loadProductsFromDB() {
                 category: product.category
             };
         });
+        products = loadedProducts;
         
         console.log(`✅ DB에서 ${productsArray.length}개 상품 로드 완료`);
         
@@ -49,14 +50,14 @@ async function loadProductsFromDB() {
         if (window.location.pathname.includes('flower.html') || 
             window.location.pathname.includes('index.html') || 
             window.location.pathname.endsWith('/')) {
-            renderProductCards();
+            renderAllProductsGrid();
             setupMainPageEvents(); // 이벤트 리스너 재설정
         }
         
         return true;
     } catch (error) {
         console.error('상품 로드 에러:', error);
-        // 실패 시 빈 객체 유지
+        // 실패 시 빈 목록 유지
         products = {};
         return false;
     }
@@ -186,38 +187,57 @@ const productsLegacy = {
     }
 };
 
+const subscriptionPlans = {
+    small: { name: '스몰 플랜', price: 18900 },
+    medium: { name: '미디엄 플랜', price: 27900 },
+    large: { name: '라지 플랜', price: 36900 }
+};
+
 // 상품 카드 렌더링 함수
-function renderProductCards() {
-    // 메인 페이지의 상품 카드 업데이트
-    document.querySelectorAll('[data-product]').forEach(card => {
-        const productId = card.getAttribute('data-product');
-        const product = products[productId];
-        if (!product) return;
-        
-        // 이미지 업데이트
-        const imgDiv = card.querySelector('.bg-center.bg-cover');
-        if (imgDiv && product.image) {
-            imgDiv.style.backgroundImage = `url("${product.image}")`;
-        }
-        
-        // 가격 업데이트
-        const priceEl = card.querySelector('.text-primary.font-bold.text-xl');
-        if (priceEl) {
-            priceEl.textContent = `${product.price.toLocaleString()}원`;
-        }
-        
-        // 정가 업데이트
-        const originalPriceEl = card.querySelector('.line-through');
-        if (originalPriceEl && product.originalPrice) {
-            originalPriceEl.textContent = `${product.originalPrice.toLocaleString()}원`;
-        }
-        
-        // 적립금 업데이트
-        const rewardEl = card.querySelector('.text-xs.text-primary span:last-child');
-        if (rewardEl) {
-            rewardEl.textContent = `${product.reward.toLocaleString()}원 적립 (3%)`;
-        }
-    });
+function renderAllProductsGrid() {
+    const grid = document.getElementById('productGrid');
+    const emptyState = document.getElementById('productEmpty');
+    if (!grid) return;
+    if (!Array.isArray(productsArray) || productsArray.length === 0) {
+        grid.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+    }
+    if (emptyState) emptyState.classList.add('hidden');
+    grid.innerHTML = productsArray.map(product => {
+        const image = (Array.isArray(product.images) && product.images[0]) || 'https://via.placeholder.com/400';
+        const originalPrice = product.original_price;
+        const reward = Math.floor(product.price * 0.03);
+        return `
+            <div class="group cursor-pointer" data-product="${product.product_id}">
+                <div class="relative w-full aspect-[3/4] overflow-hidden rounded-2xl bg-cream shadow-lg">
+                    <div class="w-full h-full bg-center bg-cover group-hover:scale-110 transition-transform duration-700" style='background-image: url("${image}")'></div>
+                    <button class="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full p-2 hover:bg-black/50">
+                        <span class="material-symbols-outlined">favorite_border</span>
+                    </button>
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                        <button class="bg-white text-primary px-8 py-3 rounded-full font-bold quick-add-btn hover:bg-primary hover:text-white transition-colors" data-id="${product.product_id}">장바구니 담기</button>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-bold">${product.name}</h3>
+                    <p class="text-muted-sage text-sm">${product.description || ''}</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <p class="text-primary font-bold text-xl">${product.price.toLocaleString()}원</p>
+                        ${originalPrice ? `<span class="text-gray-400 line-through text-sm">${originalPrice.toLocaleString()}원</span>` : ''}
+                    </div>
+                    <div class="flex items-center gap-1 text-xs text-primary mt-2">
+                        <span class="material-symbols-outlined text-sm">stars</span>
+                        <span>${reward.toLocaleString()}원 적립 (3%)</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function getProductById(productId) {
+    return products[productId] || null;
 }
 
 // ============================================
@@ -344,8 +364,11 @@ function updateCartCount() {
 }
 
 function addToCart(productId, qty = 1) {
-    const product = products[productId];
-    if (!product) return;
+    const product = getProductById(productId);
+    if (!product) {
+        showNotification('❌ 상품 정보를 찾을 수 없습니다');
+        return;
+    }
 
     (async () => {
         const user = await checkAuth();
@@ -533,10 +556,25 @@ function renderOrderList(orders) {
                     <p class="text-gray-600">총 ${itemCount}개 상품</p>
                     <p class="font-bold text-xl text-primary">${order.total_amount.toLocaleString()}원</p>
                 </div>
+                <div class="mt-4 flex gap-2">
+                    <a href="tracking.html?order=${order.order_number}" class="px-3 py-2 text-xs bg-gray-100 rounded-lg hover:bg-gray-200">배송 추적</a>
+                    <button onclick="reorderOrder('${order.id}')" class="px-3 py-2 text-xs bg-primary/10 text-primary rounded-lg hover:bg-primary/20">재주문</button>
+                </div>
             </div>
         `;
     }).join('');
 }
+
+window.reorderOrder = async function(orderId) {
+    try {
+        await apiRequest(`/orders/${orderId}/reorder`, { method: 'POST' });
+        showNotification('✅ 장바구니에 담았습니다');
+        setTimeout(() => window.location.href = 'cart.html', 800);
+    } catch (error) {
+        console.error('재주문 실패:', error);
+        showNotification('❌ 재주문에 실패했습니다');
+    }
+};
 
 // ============================================
 // 메인 페이지
@@ -632,7 +670,7 @@ if (window.location.pathname.includes('detail.html')) {
     
     // DB에서 상품 로드 후 상세 정보 표시
     loadProductsFromDB().then(() => {
-        const product = products[productId];
+        const product = getProductById(productId);
         if (!product) {
             console.error('상품을 찾을 수 없습니다:', productId);
             showNotification('❌ 상품을 찾을 수 없습니다');
@@ -659,9 +697,12 @@ function displayProductDetail(product) {
         
         document.getElementById('productReward').textContent = `${product.reward.toLocaleString()}원 적립 (3%)`;
         document.getElementById('productDescription').textContent = product.description;
+        const categoryEl = document.getElementById('productCategory');
+        if (categoryEl) categoryEl.textContent = product.category || '꽃다발';
         
         const mainImage = document.getElementById('mainImage');
-        mainImage.style.backgroundImage = `url("${product.images[0]}")`;
+        const fallbackImage = product.image || 'https://via.placeholder.com/600x800';
+        mainImage.style.backgroundImage = `url("${product.images[0] || fallbackImage}")`;
         
         document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
             const img = thumb.querySelector('div');
@@ -698,6 +739,15 @@ function displayProductDetail(product) {
             quantity = 1;
             document.getElementById('quantity').textContent = quantity;
         });
+
+        document.getElementById('buyNowBtn')?.addEventListener('click', () => {
+            addToCart(productId, quantity);
+            quantity = 1;
+            document.getElementById('quantity').textContent = quantity;
+            setTimeout(() => {
+                window.location.href = 'cart.html';
+            }, 600);
+        });
     }
     
     // 사이즈 선택
@@ -711,6 +761,288 @@ function displayProductDetail(product) {
             this.classList.remove('border-gray-200');
         });
     });
+}
+
+// ============================================
+// 구독 페이지
+// ============================================
+if (window.location.pathname.includes('subscription.html')) {
+    setTimeout(() => {
+        checkAuth();
+    }, 300);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let selectedPlan = urlParams.get('plan') || 'medium';
+    if (!subscriptionPlans[selectedPlan]) selectedPlan = 'medium';
+
+    const updatePlanUI = () => {
+        document.querySelectorAll('.plan-card').forEach(card => {
+            const plan = card.getAttribute('data-plan');
+            if (plan === selectedPlan) {
+                card.classList.add('border-primary', 'shadow-lg');
+            } else {
+                card.classList.remove('border-primary', 'shadow-lg');
+            }
+        });
+        const planInfo = subscriptionPlans[selectedPlan];
+        const nameEl = document.getElementById('selectedPlanName');
+        const priceEl = document.getElementById('selectedPlanPrice');
+        if (nameEl) nameEl.textContent = planInfo.name;
+        if (priceEl) priceEl.textContent = `${planInfo.price.toLocaleString()}원 / 주`;
+    };
+
+    document.querySelectorAll('.plan-card').forEach(card => {
+        card.addEventListener('click', () => {
+            selectedPlan = card.getAttribute('data-plan');
+            updatePlanUI();
+        });
+    });
+
+    updatePlanUI();
+
+    const form = document.getElementById('subscriptionForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageEl = document.getElementById('subscriptionMessage');
+            try {
+                const user = await checkAuth();
+                if (!user) {
+                    showNotification('⚠️ 로그인이 필요합니다');
+                    setTimeout(() => window.location.href = 'login.html', 1200);
+                    return;
+                }
+                const name = document.getElementById('subscriberName')?.value?.trim();
+                const phone = document.getElementById('subscriberPhone')?.value?.trim();
+                const address = document.getElementById('subscriberAddress')?.value?.trim();
+                const startDate = document.getElementById('startDate')?.value;
+                const deliveryDay = document.getElementById('deliveryDay')?.value || null;
+
+                if (!name || !phone || !address || !startDate) {
+                    showNotification('⚠️ 필수 정보를 모두 입력해주세요');
+                    return;
+                }
+
+                await apiRequest('/subscriptions', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        planType: selectedPlan,
+                        deliveryAddress: address,
+                        nextDeliveryDate: startDate,
+                        deliveryDay,
+                        name,
+                        phone
+                    })
+                });
+
+                if (messageEl) messageEl.textContent = '✅ 구독이 시작되었습니다. 마이페이지에서 확인하세요.';
+                showNotification('✅ 구독 신청 완료!');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } catch (error) {
+                console.error('구독 신청 실패:', error);
+                if (messageEl) messageEl.textContent = '❌ 구독 신청에 실패했습니다.';
+                showNotification('❌ 구독 신청에 실패했습니다');
+            }
+        });
+    }
+}
+
+// ============================================
+// 프로필 페이지
+// ============================================
+if (window.location.pathname.includes('profile.html')) {
+    setTimeout(async () => {
+        const user = await checkAuth();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const emailEl = document.getElementById('profileEmail');
+        if (emailEl) emailEl.value = user.email;
+        try {
+            const profile = await apiRequest('/profile');
+            document.getElementById('profileName').value = profile?.name || '';
+            document.getElementById('profilePhone').value = profile?.phone || '';
+        } catch (error) {
+            console.error('프로필 조회 실패:', error);
+        }
+    }, 300);
+
+    const form = document.getElementById('profileForm');
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageEl = document.getElementById('profileMessage');
+        try {
+            const name = document.getElementById('profileName')?.value?.trim();
+            const phone = document.getElementById('profilePhone')?.value?.trim();
+            await apiRequest('/profile', {
+                method: 'PUT',
+                body: JSON.stringify({ name, phone })
+            });
+            if (messageEl) messageEl.textContent = '✅ 정보가 저장되었습니다.';
+            showNotification('✅ 정보 저장 완료');
+        } catch (error) {
+            console.error('프로필 저장 실패:', error);
+            if (messageEl) messageEl.textContent = '❌ 저장에 실패했습니다.';
+            showNotification('❌ 저장에 실패했습니다');
+        }
+    });
+}
+
+// ============================================
+// 배송지 관리 페이지
+// ============================================
+if (window.location.pathname.includes('addresses.html')) {
+    const loadAddresses = async () => {
+        const listEl = document.getElementById('addressList');
+        try {
+            const addresses = await apiRequest('/addresses');
+            if (!addresses || addresses.length === 0) {
+                listEl.textContent = '등록된 배송지가 없습니다.';
+                return;
+            }
+            listEl.innerHTML = addresses.map(addr => `
+                <div class="border rounded-xl p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-semibold">${addr.name} · ${addr.phone}</p>
+                            <p class="text-gray-500 mt-1">${addr.address}</p>
+                            ${addr.is_default ? '<span class="text-xs text-primary font-bold mt-2 inline-block">기본 배송지</span>' : ''}
+                        </div>
+                        <button onclick="deleteAddress('${addr.id}')" class="text-xs text-red-500 hover:underline">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('배송지 조회 실패:', error);
+            listEl.textContent = '배송지 정보를 불러오지 못했습니다.';
+        }
+    };
+
+    window.deleteAddress = async function(addressId) {
+        try {
+            await apiRequest(`/addresses/${addressId}`, { method: 'DELETE' });
+            showNotification('✅ 배송지가 삭제되었습니다');
+            loadAddresses();
+        } catch (error) {
+            console.error('배송지 삭제 실패:', error);
+            showNotification('❌ 배송지 삭제에 실패했습니다');
+        }
+    };
+
+    setTimeout(async () => {
+        const user = await checkAuth();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        loadAddresses();
+    }, 300);
+
+    const form = document.getElementById('addressForm');
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const messageEl = document.getElementById('addressMessage');
+        try {
+            const name = document.getElementById('addressName')?.value?.trim();
+            const phone = document.getElementById('addressPhone')?.value?.trim();
+            const address = document.getElementById('addressText')?.value?.trim();
+            const isDefault = document.getElementById('addressDefault')?.checked || false;
+            await apiRequest('/addresses', {
+                method: 'POST',
+                body: JSON.stringify({ name, phone, address, isDefault })
+            });
+            form.reset();
+            if (messageEl) messageEl.textContent = '✅ 배송지가 추가되었습니다.';
+            showNotification('✅ 배송지 추가 완료');
+            loadAddresses();
+        } catch (error) {
+            console.error('배송지 추가 실패:', error);
+            if (messageEl) messageEl.textContent = '❌ 배송지 추가에 실패했습니다.';
+            showNotification('❌ 배송지 추가 실패');
+        }
+    });
+}
+
+// ============================================
+// 적립 내역 페이지
+// ============================================
+if (window.location.pathname.includes('points.html')) {
+    setTimeout(async () => {
+        const user = await checkAuth();
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const listEl = document.getElementById('pointsList');
+        const summaryEl = document.getElementById('pointsSummary');
+        try {
+            const data = await apiRequest('/points');
+            const total = data?.totalPoints || 0;
+            if (summaryEl) summaryEl.textContent = `현재 적립금: ${total.toLocaleString()}원`;
+            const items = data?.history || [];
+            if (!items.length) {
+                listEl.textContent = '적립 내역이 없습니다.';
+                return;
+            }
+            listEl.innerHTML = items.map(item => `
+                <div class="flex justify-between border-b pb-3">
+                    <div>
+                        <p class="font-semibold">${item.description || '적립'}</p>
+                        <p class="text-xs text-gray-400">${new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
+                    </div>
+                    <p class="font-bold ${item.type === 'earn' ? 'text-primary' : 'text-red-500'}">
+                        ${item.type === 'earn' ? '+' : '-'}${item.points.toLocaleString()}원
+                    </p>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('적립 내역 조회 실패:', error);
+            listEl.textContent = '적립 내역을 불러오지 못했습니다.';
+        }
+    }, 300);
+}
+
+// ============================================
+// 배송 추적 페이지
+// ============================================
+if (window.location.pathname.includes('tracking.html')) {
+    const inputEl = document.getElementById('trackOrderInput');
+    const resultEl = document.getElementById('trackingResult');
+    const btnEl = document.getElementById('trackOrderBtn');
+
+    const fetchTracking = async (orderNumber) => {
+        if (!orderNumber) {
+            resultEl.textContent = '주문 번호를 입력해 주세요.';
+            return;
+        }
+        try {
+            const data = await apiRequest(`/orders/track?orderNumber=${encodeURIComponent(orderNumber)}`);
+            resultEl.innerHTML = `
+                <div class="mt-4 space-y-2">
+                    <p><span class="font-semibold">주문 번호:</span> ${data.order_number}</p>
+                    <p><span class="font-semibold">상태:</span> ${data.status}</p>
+                    <p><span class="font-semibold">받는 분:</span> ${data.delivery_name}</p>
+                    <p><span class="font-semibold">주소:</span> ${data.delivery_address}</p>
+                    <p><span class="font-semibold">최근 업데이트:</span> ${new Date(data.updated_at).toLocaleString('ko-KR')}</p>
+                </div>
+            `;
+        } catch (error) {
+            console.error('배송 추적 실패:', error);
+            resultEl.textContent = '주문 정보를 찾을 수 없습니다.';
+        }
+    };
+
+    btnEl?.addEventListener('click', () => {
+        fetchTracking(inputEl.value.trim());
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderParam = urlParams.get('order');
+    if (orderParam) {
+        inputEl.value = orderParam;
+        fetchTracking(orderParam);
+    }
 }
 
 // ============================================
@@ -870,7 +1202,7 @@ if (window.location.pathname.includes('cart.html')) {
         }
         
         // 결제 확인
-        const total = cart.reduce((sum, item) => sum + (item.product_price * item.quantity), 0);
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const paymentMethodName = {
             'card': '신용/체크카드',
             'transfer': '계좌이체',

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>정기구독 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2d5f3f",
+                        "primary-light": "#4a7c5e"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white border-b sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl">🌸</span>
+        <h2 class="text-2xl font-bold text-primary"><a href="flower.html">꽃보라가든</a></h2>
+    </div>
+    <nav class="flex items-center gap-6 text-sm">
+        <a href="flower.html" class="hover:text-primary">홈</a>
+        <a href="cart.html" class="hover:text-primary">장바구니</a>
+        <a href="login.html" class="px-4 py-2 text-primary font-semibold hover:bg-primary/10 rounded-lg">로그인</a>
+    </nav>
+</div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-12">
+    <div class="text-center mb-12">
+        <span class="inline-block px-4 py-2 bg-primary/10 text-primary font-bold rounded-full mb-4">💐 정기구독</span>
+        <h1 class="text-4xl md:text-5xl font-black mb-3">매주 새로운 꽃을 받아보세요</h1>
+        <p class="text-gray-600">나를 위한 꽃, 매주 문앞까지 배달해드립니다</p>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <button class="plan-card bg-white rounded-2xl p-6 border-2 border-transparent hover:border-primary transition-all text-left" data-plan="small">
+            <p class="text-xs font-bold text-primary mb-2">스몰 플랜</p>
+            <h3 class="text-2xl font-bold mb-2">작은 공간을 위한 사이즈</h3>
+            <p class="text-3xl font-black text-primary">18,900원 <span class="text-sm text-gray-400">/주</span></p>
+            <p class="text-xs text-gray-500 mt-2">주 1회 배송 · 부담 없는 크기</p>
+        </button>
+        <button class="plan-card bg-white rounded-2xl p-6 border-2 border-primary shadow-lg text-left relative" data-plan="medium">
+            <span class="absolute -top-3 left-4 bg-primary text-white text-xs px-3 py-1 rounded-full">인기</span>
+            <p class="text-xs font-bold text-primary mb-2">미디엄 플랜</p>
+            <h3 class="text-2xl font-bold mb-2">가장 인기있는 사이즈</h3>
+            <p class="text-3xl font-black text-primary">27,900원 <span class="text-sm text-gray-400">/주</span></p>
+            <p class="text-xs text-gray-500 mt-2">주 1회 배송 · 풍성한 구성</p>
+        </button>
+        <button class="plan-card bg-white rounded-2xl p-6 border-2 border-transparent hover:border-primary transition-all text-left" data-plan="large">
+            <p class="text-xs font-bold text-primary mb-2">라지 플랜</p>
+            <h3 class="text-2xl font-bold mb-2">프리미엄 대형 사이즈</h3>
+            <p class="text-3xl font-black text-primary">36,900원 <span class="text-sm text-gray-400">/주</span></p>
+            <p class="text-xs text-gray-500 mt-2">주 1회 배송 · 가장 풍성한 구성</p>
+        </button>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border">
+            <h2 class="text-2xl font-bold mb-6">구독 정보 입력</h2>
+            <form id="subscriptionForm" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">받는 분 성함 *</label>
+                        <input id="subscriberName" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary/50" placeholder="이름" required/>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">연락처 *</label>
+                        <input id="subscriberPhone" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary/50" placeholder="010-1234-5678" required/>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-gray-700">배송 주소 *</label>
+                    <input id="subscriberAddress" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary/50" placeholder="도로명 주소" required/>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">첫 배송 날짜 *</label>
+                        <input id="startDate" type="date" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary/50" required/>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">선호 배송 요일</label>
+                        <select id="deliveryDay" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4 focus:ring-2 focus:ring-primary/50">
+                            <option value="">선택 없음</option>
+                            <option value="mon">월요일</option>
+                            <option value="tue">화요일</option>
+                            <option value="wed">수요일</option>
+                            <option value="thu">목요일</option>
+                            <option value="fri">금요일</option>
+                            <option value="sat">토요일</option>
+                            <option value="sun">일요일</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90 transition-colors">
+                    구독 시작하기
+                </button>
+                <p id="subscriptionMessage" class="text-sm text-gray-600 text-center"></p>
+            </form>
+        </div>
+
+        <aside class="bg-white p-6 rounded-2xl shadow-sm border">
+            <h3 class="text-lg font-bold mb-4">선택한 플랜</h3>
+            <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex justify-between">
+                    <span>플랜</span>
+                    <span id="selectedPlanName" class="font-semibold text-gray-800">미디엄 플랜</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>가격</span>
+                    <span id="selectedPlanPrice" class="font-semibold text-primary">27,900원 / 주</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>혜택</span>
+                    <span class="font-semibold">적립 3%</span>
+                </div>
+            </div>
+            <div class="mt-6 p-4 bg-primary/5 rounded-xl text-xs text-gray-600">
+                구독은 언제든지 마이페이지에서 일시정지/해지가 가능합니다.
+            </div>
+        </aside>
+    </section>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+</body>
+</html>

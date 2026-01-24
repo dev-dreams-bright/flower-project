@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>내 정보 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = { theme: { extend: { colors: { "primary": "#2d5f3f" } } } };
+    </script>
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white border-b">
+    <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-primary"><a href="dashboard.html">마이페이지</a></h2>
+        <a href="flower.html" class="text-sm text-gray-600 hover:text-primary">쇼핑하기</a>
+    </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-6 py-12">
+    <h1 class="text-3xl font-black mb-6">내 정보</h1>
+    <form id="profileForm" class="bg-white p-8 rounded-2xl shadow-sm border space-y-4">
+        <div>
+            <label class="text-sm font-semibold text-gray-700">이메일</label>
+            <input id="profileEmail" class="mt-2 w-full bg-gray-100 border-none rounded-xl p-4" readonly/>
+        </div>
+        <div>
+            <label class="text-sm font-semibold text-gray-700">이름</label>
+            <input id="profileName" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4" placeholder="이름"/>
+        </div>
+        <div>
+            <label class="text-sm font-semibold text-gray-700">연락처</label>
+            <input id="profilePhone" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4" placeholder="010-1234-5678"/>
+        </div>
+        <button type="submit" class="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90">정보 저장</button>
+        <p id="profileMessage" class="text-sm text-gray-600 text-center"></p>
+    </form>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+</body>
+</html>

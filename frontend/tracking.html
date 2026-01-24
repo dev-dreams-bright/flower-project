@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>배송 추적 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = { theme: { extend: { colors: { "primary": "#2d5f3f" } } } };
+    </script>
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white border-b">
+    <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-primary"><a href="dashboard.html">마이페이지</a></h2>
+        <a href="flower.html" class="text-sm text-gray-600 hover:text-primary">쇼핑하기</a>
+    </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-6 py-12 space-y-6">
+    <h1 class="text-3xl font-black">배송 추적</h1>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+        <label class="text-sm font-semibold text-gray-700">주문 번호</label>
+        <div class="flex gap-3">
+            <input id="trackOrderInput" class="flex-1 bg-gray-50 border-none rounded-xl p-4" placeholder="예: FL-8921"/>
+            <button id="trackOrderBtn" class="px-6 bg-primary text-white font-bold rounded-xl hover:bg-primary/90">조회</button>
+        </div>
+        <div id="trackingResult" class="text-sm text-gray-600">주문 번호를 입력해 주세요.</div>
+    </div>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+</body>
+</html>
