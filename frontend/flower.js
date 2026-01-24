@@ -38,22 +38,27 @@ async function loadProductsFromDB() {
                 image: (Array.isArray(product.images) && product.images[0]) || 'https://via.placeholder.com/400',
                 description: product.description,
                 images: Array.isArray(product.images) ? product.images : [],
-                stock: product.stock
+                stock: product.stock,
+                category: product.category
             };
         });
         
         console.log(`✅ DB에서 ${productsArray.length}개 상품 로드 완료`);
         
-        // 메인 페이지라면 상품 카드 다시 렌더링
+        // 메인 페이지라면 상품 카드 다시 렌더링 및 이벤트 재설정
         if (window.location.pathname.includes('flower.html') || 
             window.location.pathname.includes('index.html') || 
             window.location.pathname.endsWith('/')) {
             renderProductCards();
+            setupMainPageEvents(); // 이벤트 리스너 재설정
         }
+        
+        return true;
     } catch (error) {
         console.error('상품 로드 에러:', error);
         // 실패 시 빈 객체 유지
         products = {};
+        return false;
     }
 }
 
@@ -537,41 +542,76 @@ function renderOrderList(orders) {
 // 메인 페이지
 // ============================================
 
+// 메인 페이지 이벤트 설정 함수
+function setupMainPageEvents() {
+    console.log('🔧 메인 페이지 이벤트 리스너 설정 중...');
+    
+    // 장바구니 빠른 추가 버튼
+    document.querySelectorAll('.quick-add-btn').forEach(btn => {
+        btn.removeEventListener('click', handleQuickAdd); // 중복 방지
+        btn.addEventListener('click', handleQuickAdd);
+    });
+
+    // 상품 카드 클릭 (상세 페이지 이동)
+    document.querySelectorAll('[data-product]').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.removeEventListener('click', handleProductClick); // 중복 방지
+        card.addEventListener('click', handleProductClick);
+    });
+
+    // 장바구니 버튼
+    const cartBtn = document.getElementById('cartBtn');
+    if (cartBtn) {
+        cartBtn.removeEventListener('click', goToCart);
+        cartBtn.addEventListener('click', goToCart);
+    }
+    
+    console.log('✅ 이벤트 리스너 설정 완료');
+}
+
+// 이벤트 핸들러 함수들
+function handleQuickAdd(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    const productId = this.getAttribute('data-id');
+    console.log('장바구니 추가:', productId);
+    addToCart(productId);
+}
+
+function handleProductClick(e) {
+    if (e.target.closest('.quick-add-btn') || e.target.closest('button')) {
+        return; // 버튼 클릭 시 무시
+    }
+    const productId = this.getAttribute('data-product');
+    console.log('상품 상세 이동:', productId);
+    window.location.href = `detail.html?id=${productId}`;
+}
+
+function goToCart() {
+    window.location.href = 'cart.html';
+}
+
+// 메인 페이지 초기화
 if (window.location.pathname.includes('flower.html') || 
     window.location.pathname.includes('index.html') || 
     window.location.pathname.endsWith('/') || 
     window.location.pathname.endsWith('/신사업/') || 
     window.location.pathname.endsWith('/frontend/') ||
     window.location.pathname.endsWith('/frontend')) {
+    
+    console.log('🌸 메인 페이지 초기화 시작');
+    
     // DB에서 상품 로드
-    loadProductsFromDB();
+    loadProductsFromDB().then(() => {
+        // 상품 로드 후 이벤트 설정
+        setupMainPageEvents();
+    });
     
     // 로그인 체크
     setTimeout(() => {
         checkAuth();
         loadCartFromServer({ silent: true });
     }, 500);
-    
-    document.querySelectorAll('.quick-add-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const productId = btn.getAttribute('data-id');
-            addToCart(productId);
-        });
-    });
-
-    document.querySelectorAll('[data-product]').forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (!e.target.closest('.quick-add-btn')) {
-                const productId = this.getAttribute('data-product');
-                window.location.href = `detail.html?id=${productId}`;
-            }
-        });
-    });
-
-    document.getElementById('cartBtn')?.addEventListener('click', () => {
-        window.location.href = 'cart.html';
-    });
 }
 
 // ============================================
@@ -579,6 +619,8 @@ if (window.location.pathname.includes('flower.html') ||
 // ============================================
 
 if (window.location.pathname.includes('detail.html')) {
+    console.log('📦 상세 페이지 초기화');
+    
     // 로그인 체크
     setTimeout(() => {
         checkAuth();
@@ -587,7 +629,23 @@ if (window.location.pathname.includes('detail.html')) {
     
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id') || 'spring-peony';
-    const product = products[productId];
+    
+    // DB에서 상품 로드 후 상세 정보 표시
+    loadProductsFromDB().then(() => {
+        const product = products[productId];
+        if (!product) {
+            console.error('상품을 찾을 수 없습니다:', productId);
+            showNotification('❌ 상품을 찾을 수 없습니다');
+            setTimeout(() => window.location.href = 'flower.html', 2000);
+            return;
+        }
+        
+        displayProductDetail(product);
+    });
+}
+
+function displayProductDetail(product) {
+    console.log('상품 상세 표시:', product);
     
     if (product) {
         document.getElementById('productTitle').textContent = product.name;
