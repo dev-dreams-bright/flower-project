@@ -275,15 +275,29 @@ const subscriptionPlans = {
 function renderAllProductsGrid() {
     const grid = document.getElementById('productGrid');
     const emptyState = document.getElementById('productEmpty');
-    if (!grid) return;
+    
+    console.log('🎨 renderAllProductsGrid 호출됨');
+    console.log('   - grid 존재:', !!grid);
+    console.log('   - productsArray 길이:', productsArray.length);
+    
+    if (!grid) {
+        console.error('❌ productGrid 요소를 찾을 수 없습니다');
+        return;
+    }
+    
     if (!Array.isArray(productsArray) || productsArray.length === 0) {
+        console.warn('⚠️ 렌더링할 상품이 없습니다');
         grid.innerHTML = '';
         if (emptyState) emptyState.classList.remove('hidden');
         return;
     }
+    
     if (emptyState) emptyState.classList.add('hidden');
+    
+    console.log('✅ 상품 렌더링 시작:', productsArray.length, '개');
+    
     grid.innerHTML = productsArray.map(product => {
-        const image = (Array.isArray(product.images) && product.images[0]) || product.image || '/default.png';
+        const image = (Array.isArray(product.images) && product.images[0]) || product.image || 'https://via.placeholder.com/400';
         const originalPrice = product.original_price;
         const reward = Math.floor(product.price * 0.03);
         const isSoldOut = (product.stock ?? 0) <= 0;
@@ -314,6 +328,8 @@ function renderAllProductsGrid() {
             </div>
         `;
     }).join('');
+    
+    console.log('✅ 상품 렌더링 완료');
 }
 
 function getProductById(productId) {
@@ -747,11 +763,31 @@ if (productGrid || window.location.pathname.includes('flower.html') ||
     
     console.log('🌸 메인 페이지 초기화 시작');
     
-    // DB에서 상품 로드
-    loadProductsFromDB().then(() => {
+    // Supabase 로드 대기 후 상품 로드
+    const initMainPage = async () => {
+        // Supabase가 준비될 때까지 대기 (최대 3초)
+        let attempts = 0;
+        while (attempts < 30 && typeof window.supabase === 'undefined') {
+            console.log('⏳ Supabase 로딩 대기 중...', attempts);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        if (typeof window.supabase === 'undefined') {
+            console.warn('⚠️ Supabase 로드 실패, API만 사용합니다');
+        } else {
+            console.log('✅ Supabase 준비 완료');
+        }
+        
+        // DB에서 상품 로드
+        const loaded = await loadProductsFromDB();
+        console.log('📊 상품 로드 결과:', loaded, '개수:', productsArray.length);
+        
         // 상품 로드 후 이벤트 설정
         setupMainPageEvents();
-    });
+    };
+    
+    initMainPage();
     
     // 로그인 체크
     setTimeout(() => {
@@ -764,7 +800,7 @@ if (productGrid || window.location.pathname.includes('flower.html') ||
 // 상세 페이지
 // ============================================
 
-if (window.location.pathname.includes('detail.html')) {
+if (window.location.pathname.includes('detail.html') || window.location.pathname.includes('/product/')) {
     console.log('📦 상세 페이지 초기화');
     
     // 로그인 체크
@@ -775,27 +811,30 @@ if (window.location.pathname.includes('detail.html')) {
     
     const urlParams = new URLSearchParams(window.location.search);
     const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const productId = urlParams.get('id') || (pathParts[0] === 'product' ? pathParts[1] : null);
-    if (!productId) {
+    const detectedProductId = urlParams.get('id') || (pathParts[0] === 'product' ? pathParts[1] : null);
+    
+    console.log('🔍 감지된 productId:', detectedProductId);
+    
+    if (!detectedProductId) {
         showNotification('❌ 상품을 찾을 수 없습니다');
         setTimeout(() => window.location.href = 'flower.html', 1500);
         return;
     }
     
     // 상품 단건 로드 후 상세 정보 표시
-    loadProductById(productId).then(product => {
+    loadProductById(detectedProductId).then(product => {
         if (!product) {
-            console.error('상품을 찾을 수 없습니다:', productId);
+            console.error('상품을 찾을 수 없습니다:', detectedProductId);
             showNotification('❌ 상품을 찾을 수 없습니다');
             setTimeout(() => window.location.href = 'flower.html', 2000);
             return;
         }
-        displayProductDetail(product);
+        displayProductDetail(product, detectedProductId);
     });
 }
 
-function displayProductDetail(product) {
-    console.log('상품 상세 표시:', product);
+function displayProductDetail(product, productId) {
+    console.log('상품 상세 표시:', product, 'ID:', productId);
     
     if (product) {
         document.getElementById('productTitle').textContent = product.name;
@@ -861,6 +900,7 @@ function displayProductDetail(product) {
             const size = document.querySelector('.size-btn.bg-primary')?.dataset?.size || 'medium';
             const ribbonMessage = document.getElementById('ribbonMessage')?.value?.trim() || null;
             const addOns = Array.from(document.querySelectorAll('input[name="addOns"]:checked')).map(el => el.value);
+            console.log('🛒 장바구니 추가:', productId, quantity);
             addToCart(productId, quantity, { size, ribbonMessage, addOns });
             quantity = 1;
             document.getElementById('quantity').textContent = quantity;
@@ -870,6 +910,7 @@ function displayProductDetail(product) {
             const size = document.querySelector('.size-btn.bg-primary')?.dataset?.size || 'medium';
             const ribbonMessage = document.getElementById('ribbonMessage')?.value?.trim() || null;
             const addOns = Array.from(document.querySelectorAll('input[name="addOns"]:checked')).map(el => el.value);
+            console.log('💳 바로 결제:', productId, quantity);
             addToCart(productId, quantity, { size, ribbonMessage, addOns });
             quantity = 1;
             document.getElementById('quantity').textContent = quantity;
