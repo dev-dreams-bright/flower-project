@@ -16,6 +16,11 @@ CREATE POLICY "사용자는 자신의 프로필만 조회 가능"
   ON user_profiles FOR SELECT
   USING (auth.uid() = id);
 
+CREATE POLICY "회원가입 시 프로필 생성 허용"
+  ON user_profiles FOR INSERT
+  TO authenticated, anon
+  WITH CHECK (true);
+
 CREATE POLICY "사용자는 자신의 프로필만 수정 가능"
   ON user_profiles FOR UPDATE
   USING (auth.uid() = id);
