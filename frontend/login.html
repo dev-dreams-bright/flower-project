@@ -221,9 +221,6 @@ async function handleLogin(event) {
         
         showMessage('loginMessage', '✅ 로그인 성공! 메인 페이지로 이동합니다...', false);
         
-        // 사용자 이름 저장
-        localStorage.setItem('userName', data.user.user_metadata.name || '고객');
-        
         setTimeout(() => {
             window.location.href = 'flower.html';
         }, 1500);

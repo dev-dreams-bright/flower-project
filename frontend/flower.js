@@ -2,10 +2,17 @@
 // 꽃보라가든 - 백엔드 통합 버전
 // ============================================
 
-// 장바구니 기능
-let cart = JSON.parse(localStorage.getItem('floralCart')) || [];
+// 장바구니 기능 (서버 저장)
+let cart = [];
 let quantity = 1;
 let currentUser = null;
+const PRODUCTION_API_BASE = 'https://flower-backend-api-g0fuavb9b3gxhqgm.koreacentral-01.azurewebsites.net/api';
+const API_BASE = window.API_BASE_URL
+    || (window.location.origin === 'null'
+        ? 'http://localhost:3001/api'
+        : (window.location.hostname.endsWith('azurestaticapps.net')
+            ? PRODUCTION_API_BASE
+            : `${window.location.origin}/api`));
 
 const products = {
     'spring-peony': {
@@ -154,6 +161,66 @@ async function checkAuth() {
     return user;
 }
 
+async function getAccessToken() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token || null;
+}
+
+async function apiRequest(path, options = {}) {
+    const token = await getAccessToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+    };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const response = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers
+    });
+    if (!response.ok) {
+        let message = '요청에 실패했습니다';
+        try {
+            const errorData = await response.json();
+            message = errorData?.message || message;
+        } catch (error) {
+            message = response.statusText || message;
+        }
+        throw new Error(message);
+    }
+    if (response.status === 204) return null;
+    return response.json();
+}
+
+function normalizeCartItems(items) {
+    if (!Array.isArray(items)) return [];
+    return items.map(item => ({
+        id: item.product_id,
+        name: item.product_name,
+        price: item.product_price,
+        image: item.product_image,
+        quantity: item.quantity,
+        size: item.size || null
+    }));
+}
+
+async function loadCartFromServer({ silent = false } = {}) {
+    try {
+        const user = await checkAuth();
+        if (!user) {
+            cart = [];
+            updateCartCount();
+            return;
+        }
+        const data = await apiRequest('/cart');
+        cart = normalizeCartItems(data?.items || data);
+        updateCartCount();
+    } catch (error) {
+        if (!silent) {
+            console.error('장바구니 로드 실패:', error);
+        }
+    }
+}
+
 // 로그인 상태에 따라 UI 업데이트
 function updateUIForLoggedInUser(user) {
     // 로그인 버튼을 사용자 이름으로 변경
@@ -196,23 +263,34 @@ function updateCartCount() {
 function addToCart(productId, qty = 1) {
     const product = products[productId];
     if (!product) return;
-    
-    const existingItem = cart.find(item => item.id === productId);
-    if (existingItem) {
-        existingItem.quantity += qty;
-    } else {
-        cart.push({
-            id: productId,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: qty
+
+    (async () => {
+        const user = await checkAuth();
+        if (!user) {
+            showNotification('⚠️ 로그인이 필요합니다');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+            return;
+        }
+
+        await apiRequest('/cart', {
+            method: 'POST',
+            body: JSON.stringify({
+                productId,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+                quantity: qty
+            })
         });
-    }
-    
-    localStorage.setItem('floralCart', JSON.stringify(cart));
-    updateCartCount();
-    showNotification(`${product.name}이(가) 장바구니에 추가되었습니다!`);
+
+        await loadCartFromServer({ silent: true });
+        showNotification(`${product.name}이(가) 장바구니에 추가되었습니다!`);
+    })().catch(error => {
+        console.error('장바구니 추가 에러:', error);
+        showNotification('❌ 장바구니에 추가할 수 없습니다');
+    });
 }
 
 function showNotification(message) {
@@ -239,55 +317,20 @@ async function createOrder(orderData) {
             return;
         }
         
-        // 주문 생성
-        const { data: order, error: orderError } = await supabase
-            .from('orders')
-            .insert([{
-                user_id: user.id,
-                total_amount: orderData.total,
-                status: 'pending',
-                shipping_address: orderData.address,
-                shipping_phone: orderData.phone,
-                shipping_name: orderData.name
-            }])
-            .select()
-            .single();
-        
-        if (orderError) throw orderError;
-        
-        // 주문 아이템 생성
-        const orderItems = cart.map(item => ({
-            order_id: order.id,
-            product_id: item.id,
-            product_name: item.name,
-            quantity: item.quantity,
-            price: item.price
-        }));
-        
-        const { error: itemsError } = await supabase
-            .from('order_items')
-            .insert(orderItems);
-        
-        if (itemsError) throw itemsError;
-        
-        // 적립금 추가 (3%)
-        const pointsToAdd = Math.floor(orderData.total * 0.03);
-        const { error: pointsError } = await supabase
-            .from('points_history')
-            .insert([{
-                user_id: user.id,
-                points: pointsToAdd,
-                type: 'earn',
-                description: `주문 #${order.id} 적립`
-            }]);
-        
-        if (pointsError) throw pointsError;
-        
-        // 장바구니 비우기
-        cart = [];
-        localStorage.setItem('floralCart', JSON.stringify(cart));
-        updateCartCount();
-        
+        // 서버에서 주문 생성 및 저장
+        const order = await apiRequest('/orders', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: orderData.name,
+                phone: orderData.phone,
+                address: orderData.address,
+                message: orderData.message || null
+            })
+        });
+
+        // 장바구니 새로고침
+        await loadCartFromServer({ silent: true });
+
         return order;
         
     } catch (error) {
@@ -313,42 +356,18 @@ async function loadDashboardData() {
         const userNameEl = document.getElementById('userName');
         if (userNameEl) userNameEl.textContent = userName;
         
-        // 적립금 조회
-        const { data: pointsData } = await supabase
-            .from('points_history')
-            .select('points')
-            .eq('user_id', user.id);
-        
-        const totalPoints = pointsData?.reduce((sum, p) => {
-            return p.points > 0 ? sum + p.points : sum - Math.abs(p.points);
-        }, 0) || 0;
-        
+        const dashboard = await apiRequest('/dashboard');
+        const totalPoints = dashboard?.totalPoints || 0;
+        const orders = dashboard?.orders || [];
+        const subscriptions = dashboard?.subscriptions || [];
+
         const userPointsEl = document.getElementById('userPoints');
         if (userPointsEl) userPointsEl.textContent = `${totalPoints.toLocaleString()}원`;
-        
-        // 주문 내역 조회
-        const { data: orders, error: ordersError } = await supabase
-            .from('orders')
-            .select(`
-                *,
-                order_items (*)
-            `)
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-        
-        if (ordersError) throw ordersError;
-        
+
         // 통계 업데이트
         const totalOrders = orders?.length || 0;
         const totalSpent = orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
-        
-        // 정기구독 조회
-        const { data: subscriptions } = await supabase
-            .from('subscriptions')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('status', 'active');
-        
+
         const activeSubscriptions = subscriptions?.length || 0;
         
         // UI 업데이트
@@ -432,6 +451,7 @@ if (window.location.pathname.includes('flower.html') || window.location.pathname
     // 로그인 체크
     setTimeout(() => {
         checkAuth();
+        loadCartFromServer({ silent: true });
     }, 500);
     
     document.querySelectorAll('.quick-add-btn').forEach(btn => {
@@ -464,6 +484,7 @@ if (window.location.pathname.includes('detail.html')) {
     // 로그인 체크
     setTimeout(() => {
         checkAuth();
+        loadCartFromServer({ silent: true });
     }, 500);
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -545,11 +566,13 @@ if (window.location.pathname.includes('cart.html')) {
     setTimeout(() => {
         checkAuth();
     }, 500);
-    
-    function renderCart() {
+
+    async function renderCart() {
         const cartItems = document.getElementById('cartItems');
         if (!cartItems) return;
-        
+
+        await loadCartFromServer({ silent: true });
+
         if (cart.length === 0) {
             cartItems.innerHTML = '<p class="text-gray-500 text-center py-8">장바구니가 비어있습니다</p>';
             document.getElementById('subtotal').textContent = '0원';
@@ -597,24 +620,39 @@ if (window.location.pathname.includes('cart.html')) {
     }
     
     window.removeFromCart = function(productId) {
-        cart = cart.filter(item => item.id !== productId);
-        localStorage.setItem('floralCart', JSON.stringify(cart));
-        updateCartCount();
-        renderCart();
+        (async () => {
+            await apiRequest(`/cart/${productId}`, { method: 'DELETE' });
+            await loadCartFromServer({ silent: true });
+            renderCart();
+        })().catch(error => {
+            console.error('장바구니 삭제 에러:', error);
+            showNotification('❌ 장바구니에서 삭제할 수 없습니다');
+        });
     };
     
     window.updateQuantity = function(productId, change) {
-        const item = cart.find(i => i.id === productId);
-        if (item) {
-            item.quantity += change;
-            if (item.quantity <= 0) {
-                removeFromCart(productId);
+        (async () => {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const newQuantity = item.quantity + change;
+            if (newQuantity <= 0) {
+                await apiRequest(`/cart/${productId}`, { method: 'DELETE' });
             } else {
-                localStorage.setItem('floralCart', JSON.stringify(cart));
-                updateCartCount();
-                renderCart();
+                await apiRequest('/cart', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        productId,
+                        quantity: newQuantity
+                    })
+                });
             }
-        }
+            await loadCartFromServer({ silent: true });
+            renderCart();
+        })().catch(error => {
+            console.error('수량 변경 에러:', error);
+            showNotification('❌ 수량 변경에 실패했습니다');
+        });
     };
     
     // 결제하기 버튼
@@ -646,16 +684,10 @@ if (window.location.pathname.includes('cart.html')) {
         
         try {
             showNotification('⏳ 주문 처리 중...');
-            
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = Math.floor(subtotal * 0.1);
-            const total = subtotal + tax;
-            
             const order = await createOrder({
                 name,
                 phone,
-                address,
-                total
+                address
             });
             
             showNotification('✅ 주문이 완료되었습니다!');

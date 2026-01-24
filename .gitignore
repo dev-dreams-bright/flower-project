@@ -48,3 +48,8 @@ yarn-error.log*
 
 # Node modules (if you add any)
 node_modules/
+
+# Env files
+.env
+.env.*
+!.env.example
