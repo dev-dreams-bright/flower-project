@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>구독 결제 | 꽃보라가든</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = { theme: { extend: { colors: { "primary": "#2d5f3f" } } } };
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white border-b">
+    <div class="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-primary"><a href="subscription.html">정기구독</a></h2>
+        <a href="flower.html" class="text-sm text-gray-600 hover:text-primary">쇼핑하기</a>
+    </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-6 py-12">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border space-y-6">
+        <h1 class="text-3xl font-black">구독 결제</h1>
+        <div class="flex justify-between text-sm text-gray-600">
+            <span>플랜</span>
+            <span id="checkoutPlanName" class="font-semibold text-gray-900">미디엄 플랜</span>
+        </div>
+        <div class="flex justify-between text-sm text-gray-600">
+            <span>가격</span>
+            <span id="checkoutPlanPrice" class="font-semibold text-primary">27,900원 / 주</span>
+        </div>
+        <div>
+            <label class="text-sm font-semibold text-gray-700">결제 수단 *</label>
+            <select id="subscriptionPayment" class="mt-2 w-full bg-gray-50 border-none rounded-xl p-4">
+                <option value="">선택하세요</option>
+                <option value="card">신용/체크카드</option>
+                <option value="transfer">계좌이체</option>
+                <option value="vbank">가상계좌</option>
+                <option value="phone">휴대폰 결제</option>
+            </select>
+        </div>
+        <button id="checkoutBtn" class="w-full bg-primary text-white py-4 rounded-xl font-bold hover:bg-primary/90">
+            결제하기
+        </button>
+        <p class="text-xs text-gray-500">결제 완료 후 마이페이지에서 구독을 확인할 수 있습니다.</p>
+    </div>
+</main>
+
+<!-- Supabase Client -->
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SUPABASE_URL = 'https://xebqrsnkimtdlrjylvgy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hAxbFj3PjkdVeYqDssDsDQ_aoND-4FU';
+window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<script src="flower.js"></script>
+</body>
+</html>

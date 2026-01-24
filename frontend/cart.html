@@ -67,8 +67,34 @@
 </section>
 <section class="flex-1 max-w-2xl">
 <div class="bg-white border rounded-3xl p-10 shadow-sm">
-<h2 class="text-2xl font-bold mb-8">배송 정보</h2>
+<h2 class="text-2xl font-bold mb-8">배송/주문 정보</h2>
 <form class="space-y-8">
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-gray-700">주문자 성함 *</label>
+<input id="ordererName" class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" placeholder="주문자 이름" type="text" required/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-gray-700">주문자 연락처 *</label>
+<input id="ordererPhone" class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" placeholder="010-0000-0000" type="tel" required/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-gray-700">배송 날짜 *</label>
+<input id="deliveryDate" class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" type="date" required/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-gray-700">배송 시간대 *</label>
+<select id="deliveryTimeSlot" class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" required>
+<option value="">시간대를 선택하세요</option>
+<option value="10-12">오전 10-12시</option>
+<option value="12-14">오후 12-2시</option>
+<option value="14-16">오후 2-4시</option>
+<option value="16-18">오후 4-6시</option>
+</select>
+</div>
+</div>
 <div class="space-y-2">
 <label class="text-sm font-semibold text-gray-700">받는 분 성함 *</label>
 <input id="recipientName" class="w-full bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary/50 p-4" placeholder="이름을 입력해주세요" type="text" required/>

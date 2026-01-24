@@ -7,6 +7,10 @@
     {
       "route": "/",
       "serve": "/flower.html"
+    },
+    {
+      "route": "/product/*",
+      "rewrite": "/detail.html"
     }
   ],
   "mimeTypes": {
