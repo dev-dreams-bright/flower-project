@@ -95,7 +95,7 @@ app.get('/api/cart', requireAuth, async (req, res) => {
 });
 
 app.post('/api/cart', requireAuth, async (req, res) => {
-    const { productId, name, price, image, quantity = 1, size = null } = req.body || {};
+    const { productId, name, price, image, quantity = 1, size = null, ribbonMessage = null, addOns = [] } = req.body || {};
 
     if (!productId || !name || !price || quantity <= 0) {
         return res.status(400).json({ message: '상품 정보가 올바르지 않습니다.' });
@@ -134,7 +134,9 @@ app.post('/api/cart', requireAuth, async (req, res) => {
                     product_price: price,
                     product_image: image || null,
                     quantity,
-                    size
+                    size,
+                    ribbon_message: ribbonMessage,
+                    add_ons: Array.isArray(addOns) ? addOns : []
                 }]);
 
             if (insertError) throw insertError;
@@ -149,7 +151,7 @@ app.post('/api/cart', requireAuth, async (req, res) => {
 });
 
 app.put('/api/cart', requireAuth, async (req, res) => {
-    const { productId, quantity, size = null } = req.body || {};
+    const { productId, quantity, size = null, ribbonMessage = null, addOns = [] } = req.body || {};
 
     if (!productId || typeof quantity !== 'number') {
         return res.status(400).json({ message: '수량 정보가 올바르지 않습니다.' });
@@ -182,7 +184,7 @@ app.put('/api/cart', requireAuth, async (req, res) => {
         } else if (existingItem) {
             const { error: updateError } = await supabase
                 .from('cart_items')
-                .update({ quantity })
+                .update({ quantity, ribbon_message: ribbonMessage, add_ons: Array.isArray(addOns) ? addOns : [] })
                 .eq('id', existingItem.id);
             if (updateError) throw updateError;
         } else {
@@ -195,7 +197,9 @@ app.put('/api/cart', requireAuth, async (req, res) => {
                     product_price: req.body?.price || 0,
                     product_image: req.body?.image || null,
                     quantity,
-                    size
+                    size,
+                    ribbon_message: ribbonMessage,
+                    add_ons: Array.isArray(addOns) ? addOns : []
                 }]);
             if (insertError) throw insertError;
         }
@@ -237,7 +241,7 @@ app.delete('/api/cart/:productId', requireAuth, async (req, res) => {
 });
 
 app.post('/api/orders', requireAuth, async (req, res) => {
-    const { name, phone, address, message = null, paymentMethod } = req.body || {};
+    const { name, phone, address, message = null, paymentMethod, deliveryDate = null, deliveryTimeSlot = null, ordererName = null, ordererPhone = null } = req.body || {};
 
     if (!name || !phone || !address) {
         return res.status(400).json({ message: '배송 정보가 올바르지 않습니다.' });
@@ -273,12 +277,17 @@ app.post('/api/orders', requireAuth, async (req, res) => {
         // 2. 주문 생성
         const order = await createOrderWithRetry({
             user_id: req.user.id,
-            status: 'pending',
+            status: 'preparing',
             total_amount: totalAmount,
             delivery_address: address,
             delivery_name: name,
             delivery_phone: phone,
-            delivery_message: message
+            delivery_message: message,
+            delivery_date: deliveryDate,
+            delivery_time_slot: deliveryTimeSlot,
+            orderer_name: ordererName || name,
+            orderer_phone: ordererPhone || phone,
+            payment_status: 'paid'
         });
 
         // 3. 주문 아이템 저장
@@ -288,7 +297,9 @@ app.post('/api/orders', requireAuth, async (req, res) => {
             product_name: item.product_name,
             product_price: item.product_price,
             quantity: item.quantity,
-            size: item.size || null
+            size: item.size || null,
+            ribbon_message: item.ribbon_message || null,
+            add_ons: item.add_ons || []
         }));
 
         const { error: itemsError } = await supabase
@@ -315,7 +326,7 @@ app.post('/api/orders', requireAuth, async (req, res) => {
         // 5. 주문 상태 업데이트 (결제 완료)
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ status: 'paid' })
+            .update({ status: 'preparing', payment_status: 'paid' })
             .eq('id', order.id);
         if (updateError) throw updateError;
 
@@ -609,6 +620,44 @@ app.post('/api/orders/:orderId/reorder', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('재주문 실패:', error);
         res.status(500).json({ message: '재주문에 실패했습니다.' });
+    }
+});
+
+app.post('/api/orders/:orderId/cancel', requireAuth, async (req, res) => {
+    try {
+        const { data: order, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', req.params.orderId)
+            .eq('user_id', req.user.id)
+            .single();
+        if (error || !order) {
+            return res.status(404).json({ message: '주문을 찾을 수 없습니다.' });
+        }
+        if (order.status !== 'preparing') {
+            return res.status(400).json({ message: '제작중인 주문만 취소할 수 있습니다.' });
+        }
+        const { error: cancelError } = await supabase
+            .from('orders')
+            .update({ status: 'cancelled' })
+            .eq('id', order.id);
+        if (cancelError) throw cancelError;
+
+        await supabase
+            .from('refunds')
+            .insert([{
+                order_id: order.id,
+                user_id: req.user.id,
+                refund_amount: order.total_amount,
+                reason: '사용자 취소 요청',
+                refund_type: 'full',
+                status: 'pending'
+            }]);
+
+        res.json({ message: '취소 요청이 접수되었습니다.' });
+    } catch (error) {
+        console.error('주문 취소 실패:', error);
+        res.status(500).json({ message: '주문 취소에 실패했습니다.' });
     }
 });
 
