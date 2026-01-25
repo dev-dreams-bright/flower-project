@@ -438,12 +438,25 @@ async function loadCartFromServer({ silent = false } = {}) {
 
 // 로그인 상태에 따라 UI 업데이트
 function updateUIForLoggedInUser(user) {
-    // 로그인 버튼을 사용자 이름으로 변경
+    // 모든 "로그인" 링크/버튼을 로그아웃 버튼으로 변경
+    const authBtn = document.getElementById('authBtn');
+    if (authBtn) {
+        const userName = user.user_metadata?.name || user.email.split('@')[0];
+        authBtn.textContent = `로그아웃`;
+        authBtn.href = '#';
+        authBtn.onclick = (e) => {
+            e.preventDefault();
+            logout();
+        };
+    }
+    
+    // 기존 로그인 링크도 변경 (다른 페이지용)
     const loginButtons = document.querySelectorAll('a[href="login.html"]');
     loginButtons.forEach(btn => {
-        const userName = user.user_metadata?.name || user.email.split('@')[0];
-        btn.textContent = `👤 ${userName}`;
-        btn.href = 'dashboard.html';
+        if (btn.id !== 'authBtn') { // authBtn은 이미 처리했으므로 제외
+            btn.textContent = `👤 ${userName}`;
+            btn.href = 'dashboard.html';
+        }
     });
 }
 
