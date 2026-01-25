@@ -72,7 +72,16 @@ async function loadProductsFromSupabase() {
 // 상품 데이터 로드 함수
 async function loadProductsFromDB() {
     try {
-        const response = await fetch(`${API_BASE}/products`);
+        // 타임아웃 5초 설정 (백엔드 다운 시 빠른 폴백)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(`${API_BASE}/products`, {
+            signal: controller.signal,
+            headers: { 'Content-Type': 'application/json' }
+        });
+        clearTimeout(timeoutId);
+        
         if (!response.ok) throw new Error('상품 로드 실패');
         
         productsArray = await response.json();
@@ -103,11 +112,16 @@ async function loadProductsFromDB() {
         
         return true;
     } catch (error) {
-        console.error('상품 로드 에러:', error);
+        console.error('상품 로드 에러:', error.name === 'AbortError' ? '백엔드 타임아웃 (5초 초과)' : error);
         // 실패 시 Supabase 직접 조회 폴백 (실제 데이터만)
+        console.log('🔄 Supabase 직접 연결로 폴백...');
         const fallbackLoaded = await loadProductsFromSupabase();
-        if (fallbackLoaded) return true;
+        if (fallbackLoaded) {
+            console.log('✅ Supabase 폴백 성공!');
+            return true;
+        }
         // 실패 시 빈 목록 유지
+        console.error('❌ 모든 상품 로드 방법 실패');
         products = {};
         productsArray = [];
         return false;
