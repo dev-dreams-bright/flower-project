@@ -827,38 +827,40 @@ if (productGrid || window.location.pathname.includes('flower.html') ||
 // 상세 페이지
 // ============================================
 
-if (window.location.pathname.includes('detail.html') || window.location.pathname.includes('/product/')) {
-    console.log('📦 상세 페이지 초기화');
-    
-    // 로그인 체크
-    setTimeout(() => {
-        checkAuth();
-        loadCartFromServer({ silent: true });
-    }, 500);
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const pathParts = window.location.pathname.split('/').filter(Boolean);
-    const detectedProductId = urlParams.get('id') || (pathParts[0] === 'product' ? pathParts[1] : null);
-    
-    console.log('🔍 감지된 productId:', detectedProductId);
-    
-    if (!detectedProductId) {
-        showNotification('❌ 상품을 찾을 수 없습니다');
-        setTimeout(() => window.location.href = 'flower.html', 1500);
-        return;
-    }
-    
-    // 상품 단건 로드 후 상세 정보 표시
-    loadProductById(detectedProductId).then(product => {
-        if (!product) {
-            console.error('상품을 찾을 수 없습니다:', detectedProductId);
+(function() {
+    if (window.location.pathname.includes('detail.html') || window.location.pathname.includes('/product/')) {
+        console.log('📦 상세 페이지 초기화');
+        
+        // 로그인 체크
+        setTimeout(() => {
+            checkAuth();
+            loadCartFromServer({ silent: true });
+        }, 500);
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const detectedProductId = urlParams.get('id') || (pathParts[0] === 'product' ? pathParts[1] : null);
+        
+        console.log('🔍 감지된 productId:', detectedProductId);
+        
+        if (!detectedProductId) {
             showNotification('❌ 상품을 찾을 수 없습니다');
-            setTimeout(() => window.location.href = 'flower.html', 2000);
+            setTimeout(() => window.location.href = 'flower.html', 1500);
             return;
         }
-        displayProductDetail(product, detectedProductId);
-    });
-}
+    
+        // 상품 단건 로드 후 상세 정보 표시
+        loadProductById(detectedProductId).then(product => {
+            if (!product) {
+                console.error('상품을 찾을 수 없습니다:', detectedProductId);
+                showNotification('❌ 상품을 찾을 수 없습니다');
+                setTimeout(() => window.location.href = 'flower.html', 2000);
+                return;
+            }
+            displayProductDetail(product, detectedProductId);
+        });
+    }
+})();
 
 function displayProductDetail(product, productId) {
     console.log('상품 상세 표시:', product, 'ID:', productId);
