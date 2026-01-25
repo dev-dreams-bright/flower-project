@@ -1,7 +1,7 @@
 {
   "navigationFallback": {
     "rewrite": "/flower.html",
-    "exclude": ["/images/*.{png,jpg,gif,webp}", "/css/*"]
+    "exclude": ["/images/*.{png,jpg,gif,webp}", "/css/*", "/*.js", "/*.css", "/*.json"]
   },
   "routes": [
     {
